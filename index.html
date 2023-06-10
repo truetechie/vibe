@@ -4,6 +4,18 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            line-height: 2; /* This doubles the space between lines */
+        }
+        #vibeNumber {
+            display: none;
+        }
+        .highlighted {
+            font-size: 20px;
+            color: blue;
+            font-weight: bold;
+        }
+        #results {
+            display: none;
         }
     </style>
     <script>
@@ -12,7 +24,7 @@
 
         window.onload = function() {
             vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
-            document.getElementById('vibe').textContent = "Your secret frequency is " + vibeNumber;
+            document.getElementById('vibeNumber').textContent = "Your secret frequency is " + vibeNumber;
 
             clues = getRandomClues(3);
             displayClues(clues);
@@ -20,10 +32,9 @@
 
         function getRandomClues(numClues) {
             let randomClues = [];
-            let allClues = [
-             "Mildly addictive : Highly addictive",
-"Hot : Cold",
-"Normal : Weird",
+           let allClues = [
+          "Mildly addictive : Highly addictive",
+             "Normal : Weird",
 "Colorless : Colorful",
 "Low calorie : High calorie",
 "Feels bad : Feels good",
@@ -259,7 +270,7 @@
 "Expected : Unexpected",
 "Person you could beat up : Person who’d beat you up",
 "Underrated game : Overrated game",
-"You want your parents to watch you do it : You don't want your parents to watch you do it"
+             "You want your parents to watch you do it : You don't want your parents to watch you do it"
             ];
 
             while (randomClues.length < numClues) {
@@ -278,9 +289,23 @@
             cluesContainer.innerHTML = ''; // Clear previous clues
 
             for (let i = 0; i < clues.length; i++) {
-                let clueElement = document.createElement('p');
-                clueElement.textContent = clues[i];
+                let clueElement = document.createElement('span');
+                let radioBtn = document.createElement('input');
+                radioBtn.type = 'radio';
+                radioBtn.name = 'clue';
+                radioBtn.value = i;
+                radioBtn.onchange = function() {
+                    let previousHighlight = document.getElementsByClassName('highlighted');
+                    if (previousHighlight[0]) {
+                        previousHighlight[0].classList.remove('highlighted');
+                    }
+                    clueElement.classList.add('highlighted');
+                };
+
+                clueElement.textContent = ' ' + clues[i];  // Added space for separation
+                cluesContainer.appendChild(radioBtn);
                 cluesContainer.appendChild(clueElement);
+                cluesContainer.appendChild(document.createElement('br')); // To ensure next clue is on new line
             }
         }
 
@@ -305,19 +330,17 @@
             }
 
             document.getElementById('message').textContent = message;
+            document.getElementById('results').style.display = 'block';
         }
     </script>
 </head>
 <body>
     <h1>Frequency Game</h1>
-    <p id="vibe">Your secret frequency is: </p>
-    <p>Clues:</p>
-<div id="clues">
-        <!-- Clues will be dynamically added here -->
-    </div>
-   <img src="protractor.png" alt="Italian Trulli">
+    <button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
+    <div id="vibeNumber"></div>
+    <br></br><div id="clues"></div>
     <div>
-        <label for="guess">Your team's guess: </label>
+        <br></br><label for="guess">Your team's guess: </label>
         <input type="number" id="guess" name="guess"><br></br>
         <label for="wager">Opposing team thinks it's: </label>
         <select id="wager" name="wager">
@@ -326,6 +349,18 @@
         </select><br></br>
         <button onclick="calculateScore()">Submit</button>
     </div>
-    <p id="message"></p>
+    <div id="results">
+        <h2>Results</h2>
+        <div id="message"></div>
+    </div>
+<img src="protractor.png" alt="protractor">
 </body>
+<script>
+    function showVibeNumber() {
+        document.getElementById('vibeNumber').style.display = 'block';
+    }
+    function hideVibeNumber() {
+        document.getElementById('vibeNumber').style.display = 'none';
+    }
+</script>
 </html>
