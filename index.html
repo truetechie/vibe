@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,10 +18,20 @@
         #results {
             display: none;
         }
+        #rules {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            padding: 10px;
+            width: 300px;
+        }
     </style>
     <script>
         let vibeNumber;
         let clues = [];
+        let timerInterval;
+        let startTime;
 
         window.onload = function() {
             vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
@@ -28,11 +39,16 @@
 
             clues = getRandomClues(3);
             displayClues(clues);
+
+            startTimer();
         };
 
         function getRandomClues(numClues) {
             let randomClues = [];
-           let allClues = [
+            let allClues = [
+                
+                
+                
           "Mildly addictive : Highly addictive",
              "Normal : Weird",
 "Colorless : Colorful",
@@ -271,6 +287,9 @@
 "Person you could beat up : Person who’d beat you up",
 "Underrated game : Overrated game",
              "You want your parents to watch you do it : You don't want your parents to watch you do it"
+            
+            
+            
             ];
 
             while (randomClues.length < numClues) {
@@ -287,6 +306,10 @@
         function displayClues(clues) {
             let cluesContainer = document.getElementById('clues');
             cluesContainer.innerHTML = ''; // Clear previous clues
+
+            let instruction = document.createElement('h4');
+            instruction.textContent = 'Pick a spectrum';
+            cluesContainer.appendChild(instruction);
 
             for (let i = 0; i < clues.length; i++) {
                 let clueElement = document.createElement('span');
@@ -305,7 +328,7 @@
                 clueElement.textContent = ' ' + clues[i];  // Added space for separation
                 cluesContainer.appendChild(radioBtn);
                 cluesContainer.appendChild(clueElement);
-                cluesContainer.appendChild(document.createElement('br')); // To ensure next clue is on new line
+                cluesContainer.appendChild(document.createElement('br')); // To ensure next clue is on a new line
             }
         }
 
@@ -332,28 +355,90 @@
             document.getElementById('message').textContent = message;
             document.getElementById('results').style.display = 'block';
         }
+
+        function startTimer() {
+            startTime = Date.now();
+
+            timerInterval = setInterval(function() {
+                let elapsedTime = Date.now() - startTime;
+                let seconds = Math.floor(elapsedTime / 1000);
+                let minutes = Math.floor(seconds / 60);
+                let hours = Math.floor(minutes / 60);
+
+                seconds %= 60;
+                minutes %= 60;
+                hours %= 24;
+
+                let timerElement = document.getElementById('timer');
+                timerElement.textContent = 'Time: ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            startTimer();
+        }
+
+        function showRules() {
+            let rulesDiv = document.getElementById('rules');
+            rulesDiv.style.display = 'block';
+        }
+
+        function hideRules() {
+            let rulesDiv = document.getElementById('rules');
+            rulesDiv.style.display = 'none';
+        }
     </script>
 </head>
 <body>
-    <h1>Frequency Game</h1>
+   <h1>Frequency Game</h1>
+    <div id="timer"></div>
     <button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
     <div id="vibeNumber"></div>
-    <br></br><div id="clues"></div>
+
+    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
+    <div id="rules">
+            <ol>
+            <li>Appoint scorekeeper for the game.</li>
+            <li>Each team gets 7 minutes per turn</li>
+            <li>Appoint a cluemaster for your team</li>
+            <li>Cluemaster picks a spectrum and clicks reveal to see secret frequency</li>
+            <li>Cluemaster types 5-word phrase based on spectrum/frequency</li>
+            <li>Cluemaster then screen shares and their team guesses frequency value</li>
+            <li>Opposing team guesses if actual value is higher or lower.</li>
+            <li>Click submit to see who got points. </li>
+            <li>Scorekeeper takes note. Now other team goes</li>
+            <li>First team to get 10 points wins</li>
+        </ol>
+        <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
+    </div>
+   
     <div>
-        <br></br><label for="guess">Your team's guess: </label>
-        <input type="number" id="guess" name="guess"><br></br>
+        <div id="clues"></div>
+    </div>
+    <br></br><div>
+        <label for="clue">Your clue (five-word phrase):</label>
+        <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
+        <label for="guess">Your team's guess (in degrees): </label>
+        <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
         <label for="wager">Opposing team thinks it's: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
-        </select><br></br>
+        </select><br><br>
         <button onclick="calculateScore()">Submit</button>
     </div>
+    <img src="protractor.png" alt="Italian Trulli"> <br><br>
+    
     <div id="results">
         <h2>Results</h2>
         <div id="message"></div>
     </div>
-<img src="protractor.png" alt="protractor">
+    <br><br>
 </body>
 <script>
     function showVibeNumber() {
