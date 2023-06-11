@@ -332,29 +332,29 @@
             }
         }
 
-        function calculateScore() {
-            let guess = document.getElementById('guess').value;
-            let wager = document.getElementById('wager').value;
-            let difference = Math.abs(guess - vibeNumber);
-            let message = '';
+       function calculateScore() {
+    let guess = document.getElementById('guess').value;
+    let wager = document.getElementById('wager').value;
+    let difference = Math.abs(guess - vibeNumber);
+    let message = '';
 
-            if (difference > 9) {
-                if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
-                    message = "The opposing team got 1 point";
-                } else {
-                    message = "Boo! No one gets any points";
-                }
-            } else if (difference <= 3) {
-                message = "Your team got 4 points!";
-            } else if (difference <= 6) {
-                message = "Your team got 3 points!";
-            } else if (difference <= 9) {
-                message = "Your team got 2 points!";
-            }
-
-            document.getElementById('message').textContent = message;
-            document.getElementById('results').style.display = 'block';
+    if (difference > 20) {
+        if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
+            message = "The opposing team got 1 point";
+        } else {
+            message = "Boo! No one gets any points";
         }
+    } else if (difference <= 5) {
+        message = "Your team got 4 points!";
+    } else if (difference <= 10) {
+        message = "Your team got 3 points!";
+    } else if (difference <= 20) {
+        message = "Your team got 2 points!";
+    }
+
+    document.getElementById('message').textContent = message;
+    document.getElementById('results').style.display = 'block';
+}
 
         function startTimer() {
             startTime = Date.now();
