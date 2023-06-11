@@ -338,7 +338,7 @@
     let difference = Math.abs(guess - vibeNumber);
     let message = '';
 
-    if (difference > 20) {
+    if (difference > 15) {
         if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
             message = "The opposing team got 1 point";
         } else {
@@ -348,7 +348,7 @@
         message = "Your team got 4 points!";
     } else if (difference <= 10) {
         message = "Your team got 3 points!";
-    } else if (difference <= 20) {
+    } else if (difference <= 15) {
         message = "Your team got 2 points!";
     }
 
