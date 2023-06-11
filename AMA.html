@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+        }
+
+        * {
+            background-color: black;
+            color: white;
+        }
+
+        #intro {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #content {
+            width: 80%;
+            text-align: center;
+            display: none;
+        }
+
+        #timer {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        #category-dropdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        #category-select {
+            padding: 5px;
+        }
+        
+        #skip-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <p>"Remember: You are not in a Court of Law and you can skip any question"</p>
+        <button id="start-button">Start</button>
+    </div>
+    
+    <div id="content">
+        <h1 id="timer">00:00</h1>
+        <div id="category-dropdown">
+            <select id="category-select">
+                <option value="only-knew">If you Only Knew</option>
+                <option value="colbert">The Colbert Questionert</option>
+                <option value="itas">I.T.A.S. Questionnaire</option>
+            </select>
+        </div>
+        <div id="question"></div>
+        <button id="skip-button">Skip</button>
+    </div>
+    <script>
+        // Define question lists
+        var questions = {
+    "only-knew": [
+        "Where did you grow up?",
+        "Favorite aspect of the town/city where you currently reside?",
+        "Person you’d trade places with for a day?",
+        "What was the weirdest/strangest job you've ever had?",
+        "Guilty pleasure or indulgence?",
+        "A luxury you can’t live without?",
+        "Pet peeve?",
+        "Weirdest/funniest encounter with a stranger that you still think about?",
+        "If you can have lunch with anyone, who would it be and where would you take them?",
+        "Historical figure you most admire?",
+        "Who/what never fails to make you laugh?",
+        "Favorite comedian?",
+        "Superpower you’d love to have?",
+        "Favorite childhood superhero?",
+        "Best compliment you’ve ever received?",
+        "Someone you’d love to work/collaborate with?",
+        "What did you want to be when you grew up?", 
+        "Best advice that you’ve ever received?",
+        "Something you wish you were better at?",
+        "Something you’ve long believed to be true but isn’t?",
+        "What's something we don’t know about you?",
+        "What's the most exotic place you’ve ever travelled to?",
+        "What should we be paying more attention to?",
+        "If you could speak to any animal, which one would you choose?",
+        "What was the last TV show that you binge watched?",
+        "What TV show are you currently binge watching?",
+        "Best episode of your favorite TV show (drama)?",
+        "Best episode of your favorite TV show (comedy)?",
+        "Which book everyone should read?",
+        "Best movie ever (comedy)?",
+        "Best movie ever (drama)?",
+        "What's your favorite broadway show/musical?",
+        "Characteristic most important for success?",
+        "Characteristic you value most in others?",
+        "What is on your bucket list?",
+        "Who was your celebrity crush growing up?",
+        "What is the best perk of working in product/tech?",
+        "Name a place where we might find you on your day off?",
+        "What was your first car?",
+        "Who is your idol/role model?",
+        "What was your proudest accomplishment?",
+        "Best TV or movie character of all time?",
+        "What's something we’d be surprised to learn about you?",
+        "What makes you lose your cool?",
+        "Name a place you haven’t visited but would like to?",
+        "Your favorite website?",
+        "Your favorite app?",
+        "If time travel were possible, would you go forwards or backwards in time?",
+        "Bravest thing you’ve ever done?",
+        "Worst gift you’ve ever received?",
+        "Favorite song to sing in the shower?",
+        "First artist/band that you saw live in concert?",
+        "A pivotal (“left turn, “right turn”) moment in your life/career?",
+        "A genie grants you 3 wishes: What are they?",
+        "3 thing you'd bring if you're stranded like Tom Hanks’ character in Cast Away?",
+        "Do you have any hobbies?",
+        "Is there something you’d like to change about yourself?",
+        "What was your most memorable career/work moment?",
+        "Can you do any impressions?",
+        "What’s your favorite ‘dad joke’?",
+        "Tell us about your life: 10 years from now.",
+        "What’s your best non-cliche/unconventional career advice for our summer interns?",
+        "What's the best aspect of your job as a product analyst/manager/leader?",
+        "If you weren't working in product, what would you be doing?",
+        "Is there a moment where you knew you made it (i.e. found your calling in product)?"
+    ],
+    "colbert": [
+        "What is the best sandwich?",
+        "What’s one thing that you own that you should really throw out?",
+        "What is the scariest animal?",
+        "Apples or Oranges?",
+        "Have you ever asked for someone’s autograph? If so, who?",
+        "What do you think happens when we die?",
+        "Favorite action movie?",
+        "Favorite smell?",
+        "Least favorite smell?",
+        "Exercise: worth it?",
+        "Flat or sparkling?",
+        "Most used app on your phone?",
+        "You get one song to listen to for the rest of your life. What is it?",
+        "Describe the rest of your life in 5 words or less"
+    ],
+    "itas": [
+        "What is your favorite word?",
+        "What is your least favorite word?",
+        "What turns you on? (creatively, professionally)",
+        "What turns you off?",
+        "What sound or noise do you love?",
+        "What sound or noise do you hate?",
+        "What is your favorite curse word?",
+        "What profession (other than your own) would you like to attempt?",
+        "What profession would you not like to do?",
+        "If heaven exists, what do you want God to say to you when you arrive at pearly gates?"
+    ]
+};
+
+        // Define current state
+        var state = {
+            category: null,
+            index: -1,
+            startTime: null
+        };
+
+        // Update question
+        function updateQuestion() {
+            document.getElementById('question').innerText = questions[state.category][state.index];
+        }
+
+        // Function to select a random question for "If you Only Knew" category
+        function selectRandomQuestion() {
+            state.category = "only-knew";
+            state.index = Math.floor(Math.random() * questions[state.category].length);
+            updateQuestion();
+        }
+
+        document.getElementById('start-button').addEventListener('click', function() {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Start timer
+            state.startTime = Date.now();
+            setInterval(updateTimer, 1000);
+
+            // Select random question for "If you Only Knew" category on page load
+            selectRandomQuestion();
+        });
+
+        // Select category
+        document.getElementById('category-select').addEventListener('change', function() {
+            state.category = this.value;
+            state.index = 0; // Start from the first question for the selected category
+            updateQuestion();
+        });
+
+        // Skip question
+        document.getElementById('skip-button').addEventListener('click', function() {
+            // Increment the current question index within the current category
+            state.index = (state.index + 1) % questions[state.category].length;
+            updateQuestion();
+        });
+
+        // Update timer
+        function updateTimer() {
+            var seconds = Math.floor((Date.now() - state.startTime) / 1000);
+            var minutes = Math.floor(seconds / 60);
+            seconds = seconds % 60;
+            document.getElementById('timer').innerText = ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
+        }
+
+        // Keyboard events
+        document.addEventListener('keydown', function(event) {
+            if (state.category === null) return;
+            if (event.key === 'Enter') {
+                if (state.category === "only-knew") {
+                    selectRandomQuestion();
+                } else {
+                    state.index = (state.index + 1) % questions[state.category].length;
+                    updateQuestion();
+                }
+            } else if (event.key === 'ArrowLeft' && state.category !== "only-knew") {
+                state.index--;
+                if (state.index < 0) state.index = questions[state.category].length - 1;
+                updateQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
