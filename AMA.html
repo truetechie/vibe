@@ -53,16 +53,39 @@
             margin-top: 20px;
             padding: 10px 20px;
         }
+        
+        #player-name {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        #instructions {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #player-input {
+            height: 50px;
+            width: 40%;
+            resize: none;
+        }
     </style>
 </head>
 <body>
     <div id="intro">
-        <p>"Remember: You are not in a Court of Law and you can skip any question"</p>
+        <h2>Rules:</h2>
+        <ul>
+            <li>You are not in a court room.</li>
+            <li>This is a fun game to help us better get to know one another</li>
+            <li>Don't want to answer your assigned question? Answer a previously asked question that you liked</li>
+        </ul>
+        <textarea id="player-input" placeholder="Enter a comma separated list of players (mickey, pluto, minnie)"></textarea>
         <button id="start-button">Start</button>
     </div>
     
     <div id="content">
         <h1 id="timer">00:00</h1>
+        <div id="player-name"></div>
         <div id="category-dropdown">
             <select id="category-select">
                 <option value="only-knew">If you Only Knew</option>
@@ -71,7 +94,7 @@
             </select>
         </div>
         <div id="question"></div>
-        <button id="skip-button">Skip</button>
+        <button id="skip-button">Next</button>
     </div>
     <script>
         // Define question lists
@@ -177,22 +200,36 @@
         var state = {
             category: null,
             index: -1,
-            startTime: null
+            startTime: null,
+            players: []
         };
 
         // Update question
         function updateQuestion() {
+            var playerName = state.players[state.index % state.players.length];
+            document.getElementById('player-name').innerText = playerName;
+
             document.getElementById('question').innerText = questions[state.category][state.index];
         }
 
-        // Function to select a random question for "If you Only Knew" category
+        // Function to select a random question
         function selectRandomQuestion() {
-            state.category = "only-knew";
-            state.index = Math.floor(Math.random() * questions[state.category].length);
+            var categoryQuestions = questions[state.category];
+            state.index = Math.floor(Math.random() * categoryQuestions.length);
             updateQuestion();
         }
 
         document.getElementById('start-button').addEventListener('click', function() {
+            var playerInput = document.getElementById('player-input').value;
+            state.players = playerInput.split(",").map(function(player) {
+                return player.trim();
+            });
+
+            if (state.players.length < 2) {
+                alert("Please enter at least 2 players.");
+                return;
+            }
+
             document.getElementById('intro').style.display = 'none';
             document.getElementById('content').style.display = 'block';
 
@@ -200,7 +237,8 @@
             state.startTime = Date.now();
             setInterval(updateTimer, 1000);
 
-            // Select random question for "If you Only Knew" category on page load
+            // Select random question for the selected category on page load
+            state.category = document.getElementById('category-select').value;
             selectRandomQuestion();
         });
 
@@ -214,7 +252,13 @@
         // Skip question
         document.getElementById('skip-button').addEventListener('click', function() {
             // Increment the current question index within the current category
-            state.index = (state.index + 1) % questions[state.category].length;
+            state.index++;
+            
+            var categoryQuestions = questions[state.category];
+            if (state.index >= categoryQuestions.length) {
+                state.index = 0; // Start from the beginning if reached the end
+            }
+            
             updateQuestion();
         });
 
@@ -230,12 +274,7 @@
         document.addEventListener('keydown', function(event) {
             if (state.category === null) return;
             if (event.key === 'Enter') {
-                if (state.category === "only-knew") {
-                    selectRandomQuestion();
-                } else {
-                    state.index = (state.index + 1) % questions[state.category].length;
-                    updateQuestion();
-                }
+                selectRandomQuestion();
             } else if (event.key === 'ArrowLeft' && state.category !== "only-knew") {
                 state.index--;
                 if (state.index < 0) state.index = questions[state.category].length - 1;
