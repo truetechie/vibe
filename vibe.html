@@ -4,23 +4,79 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        #timer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #333;
+            color: #fff;
+            font-size: 24px;
+            line-height: 50px;
+            text-align: center;
+        }
+        
+        .fullscreen-div {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fff;
+        }
+        
+        .fullscreen-div.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .navigation-buttons {
+            margin-top: 20px;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            margin: 10px 0;
         }
     </style>
     <script>
+        let currentDiv = 1;
         let vibeNumber;
         let clues = [];
+        let startTime;
 
         window.onload = function() {
+            startTime = Date.now();
             vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
             document.getElementById('vibe').textContent = "Your vibe number is " + vibeNumber;
 
             clues = getRandomClues(3);
             displayClues(clues);
+
+            showDiv(currentDiv);
         };
 
         function getRandomClues(numClues) {
             let randomClues = [];
-            let allClues = [
+          let allClues = [
              "Mildly addictive : Highly addictive",
 "Hot : Cold",
 "Normal : Weird",
@@ -284,6 +340,29 @@
             }
         }
 
+        function showDiv(divNumber) {
+            const divs = document.querySelectorAll('.fullscreen-div');
+            divs.forEach((div) => {
+                div.classList.remove('visible');
+            });
+
+            const currentDiv = document.getElementById('div' + divNumber);
+            currentDiv.classList.add('visible');
+
+            if (divNumber === 2) {
+                document.getElementById('spectrum').value = '';
+            } else if (divNumber === 3) {
+                document.getElementById('clue').value = '';
+            } else if (divNumber === 4) {
+                document.getElementById('guess').value = '';
+            }
+        }
+
+        function nextDiv() {
+            currentDiv++;
+            showDiv(currentDiv);
+        }
+
         function calculateScore() {
             let guess = document.getElementById('guess').value;
             let wager = document.getElementById('wager').value;
@@ -306,26 +385,72 @@
 
             document.getElementById('message').textContent = message;
         }
+
+        function getTimeElapsed() {
+            const currentTime = Date.now();
+            const elapsedMilliseconds = currentTime - startTime;
+            const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60);
+            const seconds = elapsedSeconds % 60;
+
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
     </script>
 </head>
 <body>
-    <h1>Vibe Game</h1>
-    <p id="vibe">Your vibe number is: </p>
-    <p>Clues:</p>
-<div id="clues">
-        <!-- Clues will be dynamically added here -->
+    <div id="timer">
+        <span id="timer-value"></span>
     </div>
-   <img src="protractor.png" alt="Italian Trulli">
-    <div>
-        <label for="guess">Your team's guess: </label>
-        <input type="number" id="guess" name="guess"><br></br>
-        <label for="wager">Opposing team's wager: </label>
+    
+    <div id="div1" class="fullscreen-div">
+        <h1>Vibe Game</h1>
+        <button onclick="nextDiv()">Click to reveal secret frequency</button>
+        <button onclick="nextDiv()">Rules</button>
+        <div class="navigation-buttons">
+            <button onclick="nextDiv()">Next</button>
+        </div>
+    </div>
+
+    <div id="div2" class="fullscreen-div">
+        <h1>Pick a Spectrum</h1>
+        <select id="spectrum" name="spectrum">
+            <option value="Spectrum 1">Spectrum 1</option>
+            <option value="Spectrum 2">Spectrum 2</option>
+            <option value="Spectrum 3">Spectrum 3</option>
+        </select>
+        <div class="navigation-buttons">
+            <button onclick="nextDiv()">Next</button>
+        </div>
+    </div>
+
+    <div id="div3" class="fullscreen-div">
+        <h1>Your Clue</h1>
+        <img src="protractor.png" alt="Protractor">
+        <input type="text" id="clue" name="clue" placeholder="Enter your clue (five word phrase)">
+        <div class="navigation-buttons">
+            <button onclick="nextDiv()">Next</button>
+        </div>
+    </div>
+
+    <div id="div4" class="fullscreen-div">
+        <h1>Your Team's Guess</h1>
+        <input type="number" id="guess" name="guess" placeholder="Enter your team's guess (in degrees)">
         <select id="wager" name="wager">
-            <option value="higher">Higher</option>
-            <option value="lower">Lower</option>
-        </select><br></br>
+            <option value="higher">Opposing team thinks it's higher</option>
+            <option value="lower">Opposing team thinks it's lower</option>
+        </select>
         <button onclick="calculateScore()">Submit</button>
+        <p id="message"></p>
+        <div class="navigation-buttons">
+            <button onclick="nextDiv()">Next</button>
+        </div>
     </div>
-    <p id="message"></p>
+
+    <script>
+        // Update the timer every second
+        setInterval(function() {
+            document.getElementById('timer-value').textContent = getTimeElapsed();
+        }, 1000);
+    </script>
 </body>
 </html>
