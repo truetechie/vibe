@@ -306,8 +306,8 @@
             let cluesContainer = document.getElementById('clues');
             cluesContainer.innerHTML = ''; // Clear previous clues
 
-            let instruction = document.createElement('h4');
-            instruction.textContent = 'Pick a spectrum';
+            let instruction = document.createElement('h5');
+            instruction.textContent = 'Step 2. Cluegiver picks a spectrum';
             cluesContainer.appendChild(instruction);
 
             for (let i = 0; i < clues.length; i++) {
@@ -395,10 +395,7 @@
 </head>
 <body>
    <h1>Frequency Game</h1>
-    <div id="timer"></div>
-    <button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
-    <div id="vibeNumber"></div>
-
+    
     <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
     <div id="rules">
             <ol>
@@ -416,22 +413,27 @@
         <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
     </div>
    
+    <div id="timer"></div>
+Step 1. Clue giver clicks the button below to see the secret frequency and then starts sharing their screen.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
+    <div id="vibeNumber"></div>
+
     <div>
         <div id="clues"></div>
     </div>
     <br>
     <img src="protractor.png" alt="Italian Trulli"> <br>
     <div>
-        <label for="clue">Your clue (five-word phrase):</label>
+        <label for="clue">Step 3. Cluegiver provides clue (five-word phrase):</label>
         <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
-        <label for="guess">Your team's guess (in degrees): </label>
+        <label for="guess">Step 4. Cluegiver's team enters guess (in degrees): </label>
         <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
-        <label for="wager">Opposing team thinks it's: </label>
+        <label for="wager">Step 5. Opposing team select their wager: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
         </select><br><br>
-        <button onclick="calculateScore()">Submit</button>
+        <button onclick="calculateScore()">See who won</button>
     </div>
     <div id="results">
         <h2>Results</h2>
