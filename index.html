@@ -394,7 +394,10 @@
     </script>
 </head>
 <body>
-   <h1>Frequency Game</h1>
+      <div id="timer"></div>
+Step 1. Clue giver clicks the button below to see the secret frequency and then starts sharing their screen.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
+    <div id="vibeNumber"></div>   <h1>Frequency Game</h1>
     
     <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
     <div id="rules">
@@ -413,10 +416,7 @@
         <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
     </div>
    
-    <div id="timer"></div>
-Step 1. Clue giver clicks the button below to see the secret frequency and then starts sharing their screen.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click to reveal secret frequency</button>
-    <div id="vibeNumber"></div>
+  
 
     <div>
         <div id="clues"></div>
