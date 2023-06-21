@@ -394,27 +394,9 @@
     </script>
 </head>
 <body> 
-    <div id="rules">
-            <ol>
-            <li>Appoint scorekeeper for the game.</li>
-            <li>Each team gets 7 minutes per turn</li>
-            <li>Appoint a cluemaster for your team</li>
-            <li>Cluemaster picks a spectrum and clicks reveal to see secret frequency</li>
-            <li>Cluemaster types 5-word phrase based on spectrum/frequency</li>
-            <li>Cluemaster then screen shares and their team guesses frequency value</li>
-            <li>Opposing team guesses if actual value is higher or lower.</li>
-            <li>Click submit to see who got points. </li>
-            <li>Jot down the score. It's now the other team's turn</li>
-            <li>First team to get 10 points wins</li>
-        </ol>
-        <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
-    </div>
-    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
-
-    <div id="timer"></div>
-   
-Step 1. Cluegiver views secret frequency.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">View secret freq</button>
+     
+Step 1. Cluegiver views secret number.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click+hold to view</button>
     <div id="vibeNumber"></div>
     
    
@@ -427,14 +409,15 @@ Step 1. Cluegiver views secret frequency.
     </div>
     <br>
     <img src="protractor.png" alt="Italian Trulli"> <br>
-    <div>
-        <label for="clue">Step 3. Cluegiver starts Zoom screenshare</label>
+ <div id="timer"></div>
+       <div>
+        <label for="clue">Step 3. Cluegiver starts screenshare</label>
         <br><br>
         <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
         <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
-        <label for="guess">Step 5. Cluegiver's team enters guess (in degrees): </label>
+        <label for="guess">Step 5. Their team enters guess (in degrees): </label>
         <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
-        <label for="wager">Step 6. Opposing team select their wager: </label>
+        <label for="wager">Step 6. Opposing team's wager: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
