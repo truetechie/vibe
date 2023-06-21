@@ -393,8 +393,7 @@
         }
     </script>
 </head>
-<body>
-      <div id="timer"></div>
+<body> 
     <div id="rules">
             <ol>
             <li>Appoint scorekeeper for the game.</li>
@@ -410,11 +409,15 @@
         </ol>
         <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
     </div>
-Step 1. Cluegiver views secret frequency and starts Zoom screen share.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">View secret frequency</button>
+    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
+
+    <div id="timer"></div>
+   
+Step 1. Cluegiver views secret frequency.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">View secret freq</button>
     <div id="vibeNumber"></div>
     
-    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
+   
     
    
   
@@ -425,11 +428,13 @@ Step 1. Cluegiver views secret frequency and starts Zoom screen share.
     <br>
     <img src="protractor.png" alt="Italian Trulli"> <br>
     <div>
-        <label for="clue">Step 3. Cluegiver provides clue (five-word phrase):</label>
+        <label for="clue">Step 3. Cluegiver starts Zoom screenshare</label>
+        <br><br>
+        <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
         <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
-        <label for="guess">Step 4. Cluegiver's team enters guess (in degrees): </label>
+        <label for="guess">Step 5. Cluegiver's team enters guess (in degrees): </label>
         <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
-        <label for="wager">Step 5. Opposing team select their wager: </label>
+        <label for="wager">Step 6. Opposing team select their wager: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
