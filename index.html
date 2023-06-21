@@ -395,11 +395,6 @@
 </head>
 <body>
       <div id="timer"></div>
-Step 1. Cluegiver views secret frequency and starts Zoom screen share.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">View secret frequency</button>
-    <div id="vibeNumber"></div>   <h1>Frequency Game</h1>
-    
-    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
     <div id="rules">
             <ol>
             <li>Appoint scorekeeper for the game.</li>
@@ -415,6 +410,12 @@ Step 1. Cluegiver views secret frequency and starts Zoom screen share.
         </ol>
         <p>Note: Refreshing page will reset timer, frequency value, and spectrums.</p>
     </div>
+Step 1. Cluegiver views secret frequency and starts Zoom screen share.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">View secret frequency</button>
+    <div id="vibeNumber"></div>
+    
+    <button id="rulesBtn" onmousedown="showRules()" onmouseup="hideRules()">Rules</button>
+    
    
   
 
@@ -433,7 +434,7 @@ Step 1. Cluegiver views secret frequency and starts Zoom screen share.
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
         </select><br><br>
-        <button onclick="calculateScore()">See who won</button>
+        <button onclick="calculateScore()">View Results</button>
     </div>
     <div id="results">
         <h2>Results</h2>
