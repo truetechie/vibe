@@ -407,21 +407,21 @@ Step 1. Cluegiver views secret number.
     <div>
         <div id="clues"></div>
     </div>
-    
+     <div id="timer"></div>    
     <img src="protractor.png" alt="Italian Trulli"> <br>
- <div id="timer"></div>
+
        <div>
-        <label for="clue">Step 3. Cluegiver starts screenshare</label>
+        <label for="clue">Step 3. Cluegiver starts screenshare</label><br>
         <br>
         <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
-        <input type="text" id="clue" name="clue" style="width: 225px;"><br>
+        <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
         <label for="guess">Step 5. Their team enters guess (in degrees): </label>
-        <input type="number" id="guess" name="guess" style="width: 50px;"><br>
+        <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
         <label for="wager">Step 6. Opposing team's wager: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
-        </select><br>
+        </select><br><br>
         <button onclick="calculateScore()">View Results</button>
     </div>
     <div id="results">
