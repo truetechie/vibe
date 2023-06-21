@@ -369,7 +369,7 @@
                 hours %= 24;
 
                 let timerElement = document.getElementById('timer');
-                timerElement.textContent = 'Time: ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
+                timerElement.textContent = 'Time elapsed: ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
             }, 1000);
         }
 
@@ -398,16 +398,9 @@
 Step 1. Cluegiver views secret number.    
 <button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click+hold to view</button>
     <div id="vibeNumber"></div>
-    
-   
-    
-   
-  
-
-    <div>
+        <div>
         <div id="clues"></div>
     </div>
-     <div id="timer"></div>    
     <img src="protractor.png" alt="Italian Trulli"> <br>
 
        <div>
@@ -424,6 +417,7 @@ Step 1. Cluegiver views secret number.
         </select><br><br>
         <button onclick="calculateScore()">View Results</button>
     </div>
+     <div id="timer"></div>        
     <div id="results">
         <h2>Results</h2>
         <div id="message"></div>
