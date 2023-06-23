@@ -307,7 +307,7 @@
             cluesContainer.innerHTML = ''; // Clear previous clues
 
             let instruction = document.createElement('h5');
-            instruction.textContent = 'Step 2. Cluegiver picks a spectrum';
+            instruction.textContent = 'Step 1. Cluegiver picks a spectrum';
             cluesContainer.appendChild(instruction);
 
             for (let i = 0; i < clues.length; i++) {
@@ -394,15 +394,15 @@
     </script>
 </head>
 <body> 
-     
-Step 1. Cluegiver views secret number.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click+hold to view</button>
-    <div id="vibeNumber"></div>
-        <div>
+     <div>
         <div id="clues"></div>
     </div>
     <img src="protractor.png" alt="Italian Trulli"> <br>
 
+Step 2. Cluegiver views secret number.    
+<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click+hold to view</button>
+    <div id="vibeNumber"></div>
+        
        <div>
         <label for="clue">Step 3. Cluegiver starts screenshare</label><br>
         <br>
