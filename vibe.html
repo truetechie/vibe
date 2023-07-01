@@ -4,23 +4,51 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            line-height: 2; /* This doubles the space between lines */
+        }
+        #vibeNumber {
+            display: none;
+        }
+        .highlighted {
+            font-size: 20px;
+            color: blue;
+            font-weight: bold;
+        }
+        #results {
+            display: none;
+        }
+        #rules {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            padding: 10px;
+            width: 300px;
         }
     </style>
     <script>
         let vibeNumber;
         let clues = [];
+        let timerInterval;
+        let startTime;
 
         window.onload = function() {
             vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
-            document.getElementById('vibe').textContent = "Your vibe number is " + vibeNumber;
-
+            
             clues = getRandomClues(3);
             displayClues(clues);
+
+            startTimer();
+            updateVibeButton();
         };
 
         function getRandomClues(numClues) {
             let randomClues = [];
-            
+            let allClues = [
+      "Worth queuing for : Not worth queuing for",
+      "Would make a good president : Would make a bad president",
+      "Complaining is acceptable here : Complaining is unacceptable here"
+            ];
 
             while (randomClues.length < numClues) {
                 let randomIndex = Math.floor(Math.random() * allClues.length);
@@ -37,55 +65,141 @@
             let cluesContainer = document.getElementById('clues');
             cluesContainer.innerHTML = ''; // Clear previous clues
 
+            let instruction = document.createElement('h5');
+            instruction.textContent = 'Step 1. Cluegiver picks a spectrum';
+            cluesContainer.appendChild(instruction);
+
             for (let i = 0; i < clues.length; i++) {
-                let clueElement = document.createElement('p');
-                clueElement.textContent = clues[i];
+                let clueElement = document.createElement('span');
+                let radioBtn = document.createElement('input');
+                radioBtn.type = 'radio';
+                radioBtn.name = 'clue';
+                radioBtn.value = i;
+                radioBtn.onchange = function() {
+                    let previousHighlight = document.getElementsByClassName('highlighted');
+                    if (previousHighlight[0]) {
+                        previousHighlight[0].classList.remove('highlighted');
+                    }
+                    clueElement.classList.add('highlighted');
+                };
+
+                clueElement.textContent = ' ' + clues[i];  // Added space for separation
+                cluesContainer.appendChild(radioBtn);
                 cluesContainer.appendChild(clueElement);
+                cluesContainer.appendChild(document.createElement('br')); // To ensure next clue is on a new line
             }
         }
 
-        function calculateScore() {
-            let guess = document.getElementById('guess').value;
-            let wager = document.getElementById('wager').value;
-            let difference = Math.abs(guess - vibeNumber);
-            let message = '';
+       function calculateScore() {
+    let guess = document.getElementById('guess').value;
+    let wager = document.getElementById('wager').value;
+    let difference = Math.abs(guess - vibeNumber);
+    let message = '';
 
-            if (difference > 9) {
-                if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
-                    message = "The opposing team scores 1 point";
-                } else {
-                    message = "Sorry. No one gets any points";
-                }
-            } else if (difference <= 3) {
-                message = "Your team scores 4 points!";
-            } else if (difference <= 6) {
-                message = "Your team scores 3 points!";
-            } else if (difference <= 9) {
-                message = "Your team scores 2 points!";
+    if (difference > 15) {
+        if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
+            message = "The opposing team got 1 point";
+        } else {
+            message = "Boo! No one gets any points";
+        }
+    } else if (difference <= 5) {
+        message = "Your team got 4 points!";
+    } else if (difference <= 10) {
+        message = "Your team got 3 points!";
+    } else if (difference <= 15) {
+        message = "Your team got 2 points!";
+    }
+
+    document.getElementById('message').textContent = message;
+    document.getElementById('results').style.display = 'block';
+}
+
+        function startTimer() {
+            startTime = Date.now();
+
+            timerInterval = setInterval(function() {
+                let elapsedTime = Date.now() - startTime;
+                let seconds = Math.floor(elapsedTime / 1000);
+                let minutes = Math.floor(seconds / 60);
+                let hours = Math.floor(minutes / 60);
+
+                seconds %= 60;
+                minutes %= 60;
+                hours %= 24;
+
+                let timerElement = document.getElementById('timer');
+                timerElement.textContent = 'Time elapsed: ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            startTimer();
+        }
+
+        function showRules() {
+            let rulesDiv = document.getElementById('rules');
+            rulesDiv.style.display = 'block';
+        }
+
+        function hideRules() {
+            let rulesDiv = document.getElementById('rules');
+            rulesDiv.style.display = 'none';
+        }
+
+        function toggleVibeNumber() {
+            let vibeNumberElement = document.getElementById('vibeNumber');
+            let vibeButton = document.getElementById('vibeBtn');
+
+            if (vibeNumberElement.style.display === 'block') {
+                vibeNumberElement.style.display = 'none';
+                vibeButton.textContent = 'Reveal';
+            } else {
+                vibeNumberElement.textContent = "Your secret frequency is " + vibeNumber;
+                vibeNumberElement.style.display = 'block';
+                vibeButton.textContent = 'Hide';
             }
+        }
 
-            document.getElementById('message').textContent = message;
+        function updateVibeButton() {
+            let vibeButton = document.getElementById('vibeBtn');
+            vibeButton.addEventListener('click', toggleVibeNumber);
         }
     </script>
 </head>
-<body>
-    <h1>Vibe Game</h1>
-    <p id="vibe">Your vibe number is: </p>
-    <p>Clues:</p>
-<div id="clues">
-        <!-- Clues will be dynamically added here -->
+<body> 
+     <div>
+        <div id="clues"></div>
     </div>
-   <img src="protractor.png" alt="Italian Trulli">
-    <div>
-        <label for="guess">Your team's guess: </label>
-        <input type="number" id="guess" name="guess"><br></br>
-        <label for="wager">Opposing team's wager: </label>
+    <img src="protractor.png" alt="Italian Trulli"> <br>
+
+Step 2. Cluegiver views secret number.    
+<button id="vibeBtn">Reveal</button>
+    <div id="vibeNumber"></div>
+        
+       <div>
+        <label for="clue">Step 3. Cluegiver starts screenshare</label><br>
+        <br>
+        <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
+        <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
+        <label for="guess">Step 5. Their team enters guess (in degrees): </label>
+        <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
+        <label for="wager">Step 6. Opposing team's wager: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
-        </select><br></br>
-        <button onclick="calculateScore()">Submit</button>
+        </select><br><br>
+        <button onclick="calculateScore()">View Results</button>
     </div>
-    <p id="message"></p>
+     <div id="timer"></div>        
+    <div id="results">
+        <h2>Results</h2>
+        <div id="message"></div>
+    </div>
+    <br><br>
 </body>
 </html>
