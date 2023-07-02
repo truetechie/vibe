@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -103,7 +101,7 @@
     </div>
     <script>
         // Define question lists
-         var questions = {
+      var questions = {
     "only-knew": [
         "Where did you grow up?",
         "Favorite aspect of the town/city where you currently reside?",
@@ -200,7 +198,6 @@
         "If heaven exists, what do you want God to say to you when you arrive at pearly gates?"
     ]
 };
-
         // Define current state
         var state = {
             category: null,
@@ -238,12 +235,17 @@
 
         // Function to go to the next player
         function nextPlayer() {
-            state.currentPlayerIndex++;
-            if (state.currentPlayerIndex >= state.players.length) {
-                state.currentPlayerIndex = 0; // Start from the beginning if reached the end
+            if (state.currentPlayerIndex === -1) {
+                // Select a random question for the first player
+                state.currentPlayerIndex = 0;
+                selectRandomQuestion();
+            } else {
+                state.currentPlayerIndex++;
+                if (state.currentPlayerIndex >= state.players.length) {
+                    state.currentPlayerIndex = 0; // Start from the beginning if reached the end
+                }
+                selectRandomQuestion();
             }
-
-            selectRandomQuestion();
         }
 
         document.getElementById('start-button').addEventListener('click', function () {
