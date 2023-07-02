@@ -38,22 +38,27 @@
             font-size: 1em;
             margin-bottom: 20px;
         }
-        
+
         #category-dropdown {
             position: absolute;
             top: 10px;
             right: 10px;
         }
-        
+
         #category-select {
             padding: 5px;
         }
-        
+
         #skip-button {
             margin-top: 20px;
             padding: 10px 20px;
         }
-        
+
+        #next-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+
         #player-name {
             font-size: 1.5em;
             margin-bottom: 10px;
@@ -84,7 +89,7 @@
         <textarea id="player-input" placeholder="Enter a comma separated list of players (mickey, pluto, minnie)"></textarea>
         <button id="start-button">Start</button>
     </div>
-    
+
     <div id="content">
         <h1 id="timer">00:00</h1>
         <div id="player-name"></div>
@@ -96,9 +101,11 @@
             </select>
         </div>
         <div id="question"></div>
-        <button id="skip-button">Next</button>
+        <button id="skip-button">Skip This Question</button>
+        <button id="next-button">Next Player</button>
     </div>
     <script>
+        // Define question lists
         // Define question lists
         var questions = {
     "only-knew": [
@@ -202,13 +209,14 @@
         var state = {
             category: null,
             index: -1,
+            currentPlayerIndex: -1,
             startTime: null,
             players: []
         };
 
         // Update question
         function updateQuestion() {
-            var playerName = state.players[state.index % state.players.length];
+            var playerName = state.players[state.currentPlayerIndex];
             document.getElementById('player-name').innerText = playerName;
 
             document.getElementById('question').innerText = questions[state.category][state.index];
@@ -221,9 +229,31 @@
             updateQuestion();
         }
 
-        document.getElementById('start-button').addEventListener('click', function() {
+        // Function to go to the next question
+        function nextQuestion() {
+            state.index++;
+
+            var categoryQuestions = questions[state.category];
+            if (state.index >= categoryQuestions.length) {
+                state.index = 0; // Start from the beginning if reached the end
+            }
+
+            updateQuestion();
+        }
+
+        // Function to go to the next player
+        function nextPlayer() {
+            state.currentPlayerIndex++;
+            if (state.currentPlayerIndex >= state.players.length) {
+                state.currentPlayerIndex = 0; // Start from the beginning if reached the end
+            }
+
+            selectRandomQuestion();
+        }
+
+        document.getElementById('start-button').addEventListener('click', function () {
             var playerInput = document.getElementById('player-input').value;
-            state.players = playerInput.split(",").map(function(player) {
+            state.players = playerInput.split(",").map(function (player) {
                 return player.trim();
             });
 
@@ -245,23 +275,20 @@
         });
 
         // Select category
-        document.getElementById('category-select').addEventListener('change', function() {
+        document.getElementById('category-select').addEventListener('change', function () {
             state.category = this.value;
             state.index = 0; // Start from the first question for the selected category
             updateQuestion();
         });
 
         // Skip question
-        document.getElementById('skip-button').addEventListener('click', function() {
-            // Increment the current question index within the current category
-            state.index++;
-            
-            var categoryQuestions = questions[state.category];
-            if (state.index >= categoryQuestions.length) {
-                state.index = 0; // Start from the beginning if reached the end
-            }
-            
-            updateQuestion();
+        document.getElementById('skip-button').addEventListener('click', function () {
+            nextQuestion();
+        });
+
+        // Next player
+        document.getElementById('next-button').addEventListener('click', function () {
+            nextPlayer();
         });
 
         // Update timer
@@ -273,14 +300,12 @@
         }
 
         // Keyboard events
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
             if (state.category === null) return;
             if (event.key === 'Enter') {
                 selectRandomQuestion();
             } else if (event.key === 'ArrowLeft' && state.category !== "only-knew") {
-                state.index--;
-                if (state.index < 0) state.index = questions[state.category].length - 1;
-                updateQuestion();
+                nextQuestion();
             }
         });
     </script>
