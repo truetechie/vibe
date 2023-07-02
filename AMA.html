@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,11 +35,6 @@
             width: 80%;
             text-align: center;
             display: none;
-        }
-
-        #timer {
-            font-size: 1em;
-            margin-bottom: 20px;
         }
 
         #category-dropdown {
@@ -91,7 +89,6 @@
     </div>
 
     <div id="content">
-        <h1 id="timer">00:00</h1>
         <div id="player-name"></div>
         <div id="category-dropdown">
             <select id="category-select">
@@ -106,8 +103,7 @@
     </div>
     <script>
         // Define question lists
-        // Define question lists
-        var questions = {
+         var questions = {
     "only-knew": [
         "Where did you grow up?",
         "Favorite aspect of the town/city where you currently reside?",
@@ -210,7 +206,6 @@
             category: null,
             index: -1,
             currentPlayerIndex: -1,
-            startTime: null,
             players: []
         };
 
@@ -265,10 +260,6 @@
             document.getElementById('intro').style.display = 'none';
             document.getElementById('content').style.display = 'block';
 
-            // Start timer
-            state.startTime = Date.now();
-            setInterval(updateTimer, 1000);
-
             // Select random question for the selected category on page load
             state.category = document.getElementById('category-select').value;
             selectRandomQuestion();
@@ -288,25 +279,8 @@
 
         // Next player
         document.getElementById('next-button').addEventListener('click', function () {
+            nextQuestion();
             nextPlayer();
-        });
-
-        // Update timer
-        function updateTimer() {
-            var seconds = Math.floor((Date.now() - state.startTime) / 1000);
-            var minutes = Math.floor(seconds / 60);
-            seconds = seconds % 60;
-            document.getElementById('timer').innerText = ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
-        }
-
-        // Keyboard events
-        document.addEventListener('keydown', function (event) {
-            if (state.category === null) return;
-            if (event.key === 'Enter') {
-                selectRandomQuestion();
-            } else if (event.key === 'ArrowLeft' && state.category !== "only-knew") {
-                nextQuestion();
-            }
         });
     </script>
 </body>
