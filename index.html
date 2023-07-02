@@ -34,17 +34,17 @@
 
         window.onload = function() {
             vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
-            document.getElementById('vibeNumber').textContent = "Your secret frequency is " + vibeNumber;
-
+            
             clues = getRandomClues(3);
             displayClues(clues);
 
             startTimer();
+            updateVibeButton();
         };
 
         function getRandomClues(numClues) {
             let randomClues = [];
-            let allClues = [
+        let allClues = [
                       "Pre 9/11 : Post 9/11",
       "Artisanal : Mass produced",
       "Unfashionable : Fashionable",
@@ -428,7 +428,6 @@
       "Complaining is acceptable here : Complaining is unacceptable here"
  
             ];
-
             while (randomClues.length < numClues) {
                 let randomIndex = Math.floor(Math.random() * allClues.length);
                 let clue = allClues[randomIndex];
@@ -529,20 +528,39 @@
             let rulesDiv = document.getElementById('rules');
             rulesDiv.style.display = 'none';
         }
+
+        function toggleVibeNumber() {
+            let vibeNumberElement = document.getElementById('vibeNumber');
+            let vibeButton = document.getElementById('vibeBtn');
+
+            if (vibeNumberElement.style.display === 'block') {
+                vibeNumberElement.style.display = 'none';
+                vibeButton.textContent = 'Reveal';
+            } else {
+                vibeNumberElement.textContent = "Your secret frequency is " + vibeNumber;
+                vibeNumberElement.style.display = 'block';
+                vibeButton.textContent = 'Hide';
+            }
+        }
+
+        function updateVibeButton() {
+            let vibeButton = document.getElementById('vibeBtn');
+            vibeButton.addEventListener('click', toggleVibeNumber);
+        }
     </script>
 </head>
 <body> 
      <div>
         <div id="clues"></div>
     </div>
-    <img src="protractor.png" alt="Italian Trulli"> <br>
+    <img src="protractor.png" alt="Italian Trulli">
 
 Step 2. Cluegiver views secret number.    
-<button id="vibeBtn" onmousedown="showVibeNumber()" onmouseup="hideVibeNumber()">Click+hold to view</button>
+<button id="vibeBtn">Reveal</button>
     <div id="vibeNumber"></div>
         
        <div>
-        <label for="clue">Step 3. Cluegiver starts screenshare</label><br>
+        <label for="clue">Step 3. Cluegiver makes sure secret number is hidden and starts Zoom screenshare</label>
         <br>
         <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
         <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
@@ -552,22 +570,15 @@ Step 2. Cluegiver views secret number.
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
-        </select><br><br>
-        <button onclick="calculateScore()">View Results</button>
+        </select><br>
+          <div id="timer"></div>   <br>
+           <button onclick="calculateScore()">View Results</button>
     </div>
-     <div id="timer"></div>        
+        
     <div id="results">
         <h2>Results</h2>
         <div id="message"></div>
     </div>
     <br><br>
 </body>
-<script>
-    function showVibeNumber() {
-        document.getElementById('vibeNumber').style.display = 'block';
-    }
-    function hideVibeNumber() {
-        document.getElementById('vibeNumber').style.display = 'none';
-    }
-</script>
 </html>
