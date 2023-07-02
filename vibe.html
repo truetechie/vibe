@@ -553,14 +553,14 @@
      <div>
         <div id="clues"></div>
     </div>
-    <img src="protractor.png" alt="Italian Trulli"> <br>
+    <img src="protractor.png" alt="Italian Trulli">
 
 Step 2. Cluegiver views secret number.    
 <button id="vibeBtn">Reveal</button>
     <div id="vibeNumber"></div>
         
        <div>
-        <label for="clue">Step 3. Cluegiver starts screenshare</label><br>
+        <label for="clue">Step 3. Cluegiver makes sure secret number is hidden and starts Zoom screenshare</label>
         <br>
         <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
         <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
@@ -570,10 +570,11 @@ Step 2. Cluegiver views secret number.
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
-        </select><br><br>
-        <button onclick="calculateScore()">View Results</button>
+        </select><br>
+          <div id="timer"></div>   <br>
+           <button onclick="calculateScore()">View Results</button>
     </div>
-     <div id="timer"></div>        
+        
     <div id="results">
         <h2>Results</h2>
         <div id="message"></div>
