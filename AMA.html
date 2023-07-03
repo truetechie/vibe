@@ -99,9 +99,10 @@
         <button id="skip-button">Skip This Question</button>
         <button id="next-button">Next Player</button>
     </div>
-    <script>
-        // Define question lists
-      var questions = {
+    
+<script>
+    // Define question lists
+  var questions = {
     "only-knew": [
         "Where did you grow up?",
         "Favorite aspect of the town/city where you currently reside?",
@@ -198,92 +199,92 @@
         "If heaven exists, what do you want God to say to you when you arrive at pearly gates?"
     ]
 };
-        // Define current state
-        var state = {
-            category: null,
-            index: -1,
-            currentPlayerIndex: -1,
-            players: []
-        };
 
-        // Update question
-        function updateQuestion() {
-            var playerName = state.players[state.currentPlayerIndex];
-            document.getElementById('player-name').innerText = playerName;
+    // Define current state
+    var state = {
+        category: null,
+        index: -1,
+        currentPlayerIndex: -1,
+        players: []
+    };
 
-            document.getElementById('question').innerText = questions[state.category][state.index];
+    // Update question
+    function updateQuestion() {
+        var playerName = state.players[state.currentPlayerIndex];
+        document.getElementById('player-name').innerText = playerName;
+
+        document.getElementById('question').innerText = questions[state.category][state.index];
+    }
+
+    // Function to select a random question
+    function selectRandomQuestion() {
+        var categoryQuestions = questions[state.category];
+        state.index = Math.floor(Math.random() * categoryQuestions.length);
+        updateQuestion();
+    }
+
+    // Function to go to the next question
+    function nextQuestion() {
+        state.index++;
+
+        var categoryQuestions = questions[state.category];
+        if (state.index >= categoryQuestions.length) {
+            state.index = 0; // Start from the beginning if reached the end
         }
 
-        // Function to select a random question
-        function selectRandomQuestion() {
-            var categoryQuestions = questions[state.category];
-            state.index = Math.floor(Math.random() * categoryQuestions.length);
-            updateQuestion();
+        updateQuestion();
+    }
+
+    // Function to go to the next player
+    function nextPlayer() {
+        state.currentPlayerIndex++;
+        if (state.currentPlayerIndex >= state.players.length) {
+            state.currentPlayerIndex = 0; // Start from the beginning if reached the end
+        }
+        selectRandomQuestion();
+    }
+
+    document.getElementById('start-button').addEventListener('click', function () {
+        var playerInput = document.getElementById('player-input').value;
+        state.players = playerInput.split(",").map(function (player) {
+            return player.trim();
+        });
+
+        if (state.players.length < 2) {
+            alert("Please enter at least 2 players.");
+            return;
         }
 
-        // Function to go to the next question
-        function nextQuestion() {
-            state.index++;
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
 
-            var categoryQuestions = questions[state.category];
-            if (state.index >= categoryQuestions.length) {
-                state.index = 0; // Start from the beginning if reached the end
-            }
+        // Select random question for the selected category on page load
+        state.category = document.getElementById('category-select').value;
+        state.currentPlayerIndex = 0; // Set the first player as the current player
+        selectRandomQuestion();
+    });
 
-            updateQuestion();
-        }
+    // Select category
+    document.getElementById('category-select').addEventListener('change', function () {
+        state.category = this.value;
+        state.index = 0; // Start from the first question for the selected category
+        updateQuestion();
+    });
 
-        // Function to go to the next player
-        function nextPlayer() {
-            if (state.currentPlayerIndex === -1) {
-                // Select a random question for the first player
-                state.currentPlayerIndex = 0;
-                selectRandomQuestion();
-            } else {
-                state.currentPlayerIndex++;
-                if (state.currentPlayerIndex >= state.players.length) {
-                    state.currentPlayerIndex = 0; // Start from the beginning if reached the end
-                }
-                selectRandomQuestion();
-            }
-        }
+    // Skip question
+    document.getElementById('skip-button').addEventListener('click', function () {
+        nextQuestion();
+    });
 
-        document.getElementById('start-button').addEventListener('click', function () {
-            var playerInput = document.getElementById('player-input').value;
-            state.players = playerInput.split(",").map(function (player) {
-                return player.trim();
-            });
+    // Next player
+    document.getElementById('next-button').addEventListener('click', function () {
+        nextPlayer();
+        // nextQuestion(); // You don't need this here as nextPlayer() already calls selectRandomQuestion() which updates the question for the next player
+    });
+</script>
 
-            if (state.players.length < 2) {
-                alert("Please enter at least 2 players.");
-                return;
-            }
-
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-
-            // Select random question for the selected category on page load
-            state.category = document.getElementById('category-select').value;
-            selectRandomQuestion();
-        });
-
-        // Select category
-        document.getElementById('category-select').addEventListener('change', function () {
-            state.category = this.value;
-            state.index = 0; // Start from the first question for the selected category
-            updateQuestion();
-        });
-
-        // Skip question
-        document.getElementById('skip-button').addEventListener('click', function () {
-            nextQuestion();
-        });
-
-        // Next player
-        document.getElementById('next-button').addEventListener('click', function () {
-            nextQuestion();
-            nextPlayer();
-        });
-    </script>
 </body>
 </html>
+
+
+
