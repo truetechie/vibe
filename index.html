@@ -444,7 +444,7 @@
             cluesContainer.innerHTML = ''; // Clear previous clues
 
             let instruction = document.createElement('h5');
-            instruction.textContent = 'Step 1. Cluegiver picks a spectrum';
+            instruction.textContent = 'Step 1. Pick a spectrum';
             cluesContainer.appendChild(instruction);
 
             for (let i = 0; i < clues.length; i++) {
@@ -555,7 +555,7 @@
         <div id="clues"></div>
     </div>
       
-    Step 2. Cluegiver views secret number.    
+    Step 2. View secret number.    
 <button id="vibeBtn">Reveal</button>
     <div id="vibeNumber"></div>
  
@@ -566,9 +566,9 @@
 
         
         
-        <label for="guess">Step 3. Cluegiver's team enters guess (in degrees): </label>
+        <label for="guess">Step 3. Enter guess (in degrees): </label>
         <input type="number" id="guess" name="guess" style="width: 50px;"><br>
-        <label for="wager">Step 4. Opposing team's wager: </label>
+        <label for="wager">Step 4. Opposing team says: </label>
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
