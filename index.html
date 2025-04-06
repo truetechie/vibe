@@ -444,7 +444,7 @@
             cluesContainer.innerHTML = ''; // Clear previous clues
 
             let instruction = document.createElement('h5');
-            instruction.textContent = 'Step 1. Pick a spectrum';
+            instruction.textContent = 'Pick a spectrum';
             cluesContainer.appendChild(instruction);
 
             for (let i = 0; i < clues.length; i++) {
@@ -555,9 +555,9 @@
         <div id="clues"></div>
     </div>
       
-    Step 2. View secret number.    
+    View secret number.    
 <button id="vibeBtn">Reveal</button>
-    <div id="vibeNumber"></div><br><br>
+    <div id="vibeNumber"></div>
  
         
        <div>
@@ -565,17 +565,17 @@
         
 
         <img src="protractor.png" alt="Italian Trulli">
-        <br><br>
-        <label for="guess">Step 3. Enter guess (in degrees): </label>
+       
+        <label for="guess">Enter guess (in degrees): </label>
         <input type="number" id="guess" name="guess" style="width: 50px;"><br>
-<br><br>
-        <label for="wager">Step 4. Opposing team says: </label>
-<br><br>
+
+        <label for="wager">Opposing team guesses: </label>
+
         <select id="wager" name="wager">
             <option value="higher">Higher</option>
             <option value="lower">Lower</option>
         </select><br>
-        <br><br>  <div id="timer"></div>  
+         <div id="timer"></div>  
            <button onclick="calculateScore()">View Results</button>
     </div>
         
