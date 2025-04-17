@@ -1,584 +1,587 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 2; /* This doubles the space between lines */
-        }
-        #vibeNumber {
-            display: none;
-        }
-        .highlighted {
-            font-size: 20px;
-            color: blue;
-            font-weight: bold;
-        }
-        #results {
-            display: none;
-        }
-        #rules {
-            display: none;
-            position: absolute;
-            background-color: white;
-            border: 1px solid black;
-            padding: 10px;
-            width: 300px;
-        }
-    </style>
-    <script>
-        let vibeNumber;
-        let clues = [];
-        let timerInterval;
-        let startTime;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Game - Multi-Step Colorful</title>
+  <style>
+    /* Theme Variables */
+    :root {
+      --bg-color: #e0f7fa;
+      --text-color: #004d40;
+      --page-bg: #ffffff;
+      --primary-color: #00796b;
+      --secondary-color: #ff8f00;
+      --accent-color: #d32f2f;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #timerDisplay {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-bottom: 20px;
+    }
+    .page {
+      display: none;
+      background-color: var(--page-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .active { display: block; }
+    button {
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover { background-color: var(--secondary-color); }
+    .highlighted { font-weight: bold; color: var(--primary-color); }
+    input, select { padding: 5px; border: 1px solid #ccc; border-radius: 4px; margin: 5px; }
+    .clue-option { display: block; margin-bottom: 1.5rem; }
+    .protractor {
+      width: 600px;
+      max-width: 90%;
+      display: block;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="timerDisplay">0m 0s</div>
 
-        window.onload = function() {
-            vibeNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
-            
-            clues = getRandomClues(3);
-            displayClues(clues);
+  <!-- Page 1: Select Spectrum -->
+  <div id="page1" class="page active">
+    <h2>Select a Spectrum</h2>
+    <div id="clue-options"></div>
+    <button id="toPage2">Next</button>
+  </div>
 
-            startTimer();
-            updateVibeButton();
-        };
+  <!-- Page 2: Reveal Secret Number -->
+  <div id="page2" class="page">
+    <h2>Reveal Secret Number</h2>
+    <img src="https://www.historyofpencils.com/images/historyofpencils/protractor-simple.jpg" alt="Protractor" class="protractor">
+    <p id="chosen-clue"></p>
+    <button id="revealNumberBtn">Reveal Secret Number</button>
+    <p id="secretNumber" style="display:none;"></p>
+    <button id="toPage3">Next</button>
+  </div>
 
-        function getRandomClues(numClues) {
-            let randomClues = [];
-        let allClues = [
-                      "Pre 9/11 : Post 9/11",
-      "Artisanal : Mass produced",
-      "Unfashionable : Fashionable",
-      "Quiet : Loud",
-      "Smells bad : Smells good",
-      "Benefits you : Benefits everyone",
-      "Off brand : Name brand",
-      "Go for quality : Go for quantity",
-      "Clearly a spectrum : Clearly binary",
-      "Normal thing to own : Weird thing to own",
-      "Won’t live to 100: Will live to 100",
-      "Underqualified : Overqualified",
-      "Normal pet : Exotic pet",
-      "Famous : Infamous",
-      "Peaceful : Warlike",
-      "Underrated musician : Overrated musician",
-      "Bad actor : Good actor",
-      "Art : Commerce",
-      "Worth the money : Not worth the money",
-      "Worn in the future : Not worn in the future",
-      "Deep thought : Shallow thought",
-      "Out of control : In control",
-      "Nobody does it : Everybody does it",
-      "Weak : Strong",
-      "Unreliable : Reliable",
-      "Illegal : Prohibited",
-      "One-hit wonder : Pop icon",
-      "Limp : Firm",
-      "Sloppy : Neat",
-      "Old fashioned : Avant garde",
-      "Unhealthy : Healthy",
-      "Religious : Sacrilegious",
-      "Most athletic sport : Least athletic sport",
-      "Game : Toy",
-      "Underrated vegetable : Overrated vegetable",
-      "Jingle all the way : Christmas is ruined",
-      "Fire emoji : Oof emoji",
-      "Underrated thing to do : Overrated thing to do",
-      "Easy to do : Hard to do",
-      "Unsexy : Sexy",
-      "Romantic movie : Action movie",
-      "Round animal : Pointy animal",
-      "Acceptable as breakfast : Unacceptable as breakfast",
-      "Expected : Unexpected",
-      "Not enough : Too much",
-      "Underrated weapon : Overrated weapon",
-      "Bad Disney character : Good Disney character",
-      "Useful in a fight : Useless in a fight",
-      "A lil bit illegal : Turbo illegal",
-      "Worst year in history : Best year in history",
-      "Day thing : Night thing",
-      "Useless body part : Useful body part",
-      "Successful franchise : Unsuccessful franchise",
-      "Daytime activity : Nighttime activity",
-      "Trashy TV : Classy TV",
-      "Fruit : Vegetable",
-      "Unforgiveable : Forgiveable",
-      "Believable conspiracy theory : Unbelievable conspiracy theory",
-      "Kids show that kids want to watch : Kids show that adults want to watch",
-      "Unhygienic : Hygienic",
-      "Useless : Useful",
-      "Shady : Trustworthy",
-      "Noisy thing : Silent thing",
-      "Kitchen counter : Kitchen cupboard",
-      "Unsexy animal : Sexy animal",
-      "Limited : Infinite",
-      "Cheap : Expensive",
-      "Bad school : Good school",
-      "Hollow : Solid",
-      "Public : Private",
-      "Horizontal : Vertical",
-      "Good : Evil",
-      "Guilty pleasure : Openly love",
-      "Inclusive : Exclusive",
-      "Role model : Bad influence",
-      "Least evil company : Most evil company",
-      "Inessential : Essential",
-      "Vice : Virtue",
-      "Hard to remember : Easy to remember",
-      "Can change : Cannot change",
-      "Guilty pleasure : Actually just bad",
-      "Indoor activity : Outdoor activity",
-      "Best era to time travel : Worse era to time travel",
-      "Action movie : Adventure movie",
-      "Geek : Dork",
-      "Bad dog breed : Good dog breed",
-      "Appropriate to dance during : Inappropriate to dance during",
-      "Has a bad reputation : Has a good reputation",
-      "Most romantic place to propose : Least romantic place to propose",
-      "Harmless : Harmful",
-      "Uncool : Cool",
-      "Unimportant : Important",
-      "Bad president : Good president",
-      "Best song to play at a funeral : Best song to play at a wedding",
-      "Visually complicated : Visually simple",
-      "Messy food : Clean food",
-      "Unsexy color : Sexy color",
-      "Acceptable place to be naked : Unacceptable place to be naked",
-      "Predictable : Unpredictable",
-      "Etiquette : Manners",
-      "Regional cuisine : Served worldwide",
-      "Traditional : Radical",
-      "Tired : Wired",
-      "Just a warning : Prison time",
-      "Small : Large",
-      "Similar : Identical",
-      "Socialist : Capitalist",
-      "Fad : Classic",
-      "Ugly man : Beautiful man",
-      "Powerless : Powerful",
-      "Plain : Fancy",
-      "Gorgeous design : Grotesque design",
-      "Day food : Night food",
-      "Bad habit : Good habit",
-      "Bad gift : Good gift",
-      "Fragile : Durable",
-      "Underrated actor : Overrated actor",
-      "Bad pizza topping : Good pizza topping",
-      "For kids : For adults",
-      "Uncontroversial topic : Controversial topic",
-      "Bad candy : Good candy",
-      "Hairless : Hairy",
-      "Untalented : Talented",
-      "Mild : Spicy",
-      "Unfairly hated : Understandably hated",
-      "Book was better : Movie was better",
-      "Temporary : Permanent",
-      "Replaceable : Irreplaceable",
-      "Acquired taste : Innate taste",
-      "Unstable : Stable",
-      "Unscented : Scented",
-      "Mature person : Immature person",
-      "Most American thing : Least American thing",
-      "Futuristic : Traditional",
-      "Main character : Cameo",
-      "Introvert : Extrovert",
-      "Better to watch : Better to do",
-      "Worst reaction to break-up : Best reaction to break-up",
-      "Solved with force : Solved with negotiation",
-      "Optional : Mandatory",
-      "Star Wars : Star Trek",
-      "Tiny mistake : Huge mistake",
-      "Cool name for a sports team : Awful name for a sports team",
-      "Fingers necessary : Fingers not necessary",
-      "Opening credits song : End credits song",
-      "Educational : Entertaining",
-      "Useless major : Useful major",
-      "Cat person : Dog person",
-      "Easy subject : Hard subject",
-      "Fantasy : Sci-Fi",
-      "Blue : Green",
-      "Funny topic : Serious topic",
-      "Hard to find : Easy to find",
-      "Short : Long",
-      "Falls apart : Stays together",
-      "Happiest place on earth : Unhappiest place on earth",
-      "Tastes bad : Tastes good",
-      "Rated G : Rated NC-17",
-      "Sad song : Happy song",
-      "Better with cheese : Worse with cheese",
-      "Unbelievable : Believable",
-      "Underrated : Overrated",
-      "Normal greeting : Weird greeting",
-      "Ineffective : Effective",
-      "So bad it's good : So bad it's bad",
-      "Inflexible : Flexible",
-      "Know : Believe",
-      "Proof that God exists : Proof that God doesn’t exist",
-      "Looks like a person : Doesn't look like a person",
-      "Ordinary : Extraordinary",
-      "Cringe : Fair",
-      "Lawful good : Chaotic evil",
-      "Bad music : Good music",
-      "Heterogeneous : Homogenous",
-      "Unreasonable phobia : Reasonable phobia",
-      "Dry : Wet",
-      "Feels bad : Feels good",
-      "Talent : Skill",
-      "Bad investment : Good investment",
-      "Secret : Public knowledge",
-      "Dirty word : Clean word",
-      "Unnatural : Natural",
-      "Worst athlete of all time : Greatest athlete of all time",
-      "Real : Imaginary",
-      "Underpaid : Overpaid",
-      "Job : Career",
-      "Dream Sesame Street guest : Nightmare Sesame Street guest",
-      "Easy to spell : Hard to spell",
-      "Objective measurement : Subjective measurement",
-      "Local issue : Global issue",
-      "Best meme : Worst meme",
-      "Kid food : Grown-up food",
-      "Stands out : Blends in",
-      "Dog name : Human name",
-      "Best buffet food : Worst buffet food",
-      "Ugly : Beautiful",
-      "Go with your head : Go with your gut",
-      "Underdog : Favorite",
-      "Low calorie : High calorie",
-      "Traditionally masculine : Traditionally feminine",
-      "Freedom fighter : Terrorist",
-      "Underrated thing to own : Overrated thing to own",
-      "Quiet place : Loud place",
-      "Apps at a state dinner : Snacks at a kids party",
-      "Necessary kitchen item : Unnecessary kitchen item",
-      "Never on time : Always on time",
-      "Aged like wine : Aged like milk",
-      "Too small : Too big",
-      "Worst day of the year : Best day of the year",
-      "Normal celeb : Strange celeb",
-      "Bad TV show : Good TV show",
-      "Unknown : Famous",
-      "Ugly word : Beautiful word",
-      "Lots of hot people here : No hot people here",
-      "Least powerful god : Most powerful god",
-      "Controversial food : Uncontroversial food",
-      "Need : Want",
-      "Done silently : Done loudly",
-      "Forbidden : Encouraged",
-      "Small : Tiny",
-      "Little known fact : Well known fact",
-      "Nature : Nurture",
-      "Acceptable to Italians : Unacceptable to Italians",
-      "Underrated movie : Overrated movie",
-      "Dangerous : Safe",
-      "Jesus would do : Jesus would not do",
-      "Bad advice : Good advice",
-      "Dangerous job : Safe job",
-      "Hot take : Unpopular opinion",
-      "Non-partisan : Partisan",
-      "Left-brained : Right-brained",
-      "Huggable : Not huggable",
-      "Lowbrow : Highbrow",
-      "Mildly addictive : Highly addictive",
-      "Stupid : Brilliant",
-      "Liquid : Solid",
-      "Worst chore : Best chore",
-      "Annoying musical instrument : Delightful musical instrument",
-      "Popular : Elitist",
-      "Worth the calories : Not worth the calories",
-      "Underrated book : Overrated book",
-      "Trashy : Classy",
-      "Person you could beat up : Person who’d beat you up",
-      "Derivative : Original",
-      "Job involving shapes : Job involving words",
-      "Ethical to eat : Unethical to eat",
-      "Useless in an emergency : Useful in an emergency",
-      "Sustenance : Haute cuisine",
-      "Hard to pronounce : Easy to pronounce",
-      "OK to lie about : Not OK to lie about",
-      "Colorless : Colorful",
-      "I could make it : I couldn’t make it",
-      "Flavorless : Flavorful",
-      "Historically important : Historically irrelevant",
-      "Useless invention : Useful invention",
-      "Feel great after : Feel awful after",
-      "Snack : Meal",
-      "Bad person : Good person",
-      "Genuine person : Phony person",
-      "Hot : Cold",
-      "Thrilling : Terrifying",
-      "Science : Pseudoscience",
-      "Friend : Enemy",
-      "Bad for you : Good for you",
-      "Poorly made : Well made",
-      "Good egg : Bad egg",
-      "Millennial thing : Boomer thing",
-      "Worthy of a text : Worthy of a phone call",
-      "Better if jewel encrusted : Worse if jewel encrusted",
-      "Underrated game : Overrated game",
-      "Happens slowly : Happens suddenly",
-      "Smelly in a bad way : Smelly in a good way",
-      "Bad man : Good man",
-      "Conservative brand : Liberal brand",
-      "Comedy : Drama",
-      "Extremely Metal way to die : Not very Metal way to die",
-      "Circle food : Triangle food",
-      "Boring : Exciting",
-      "Conventional wisdom : Fringe belief",
-      "The most dangerous game : The least dangerous game",
-      "Boring topic : Fascinating topic",
-      "The worst : The best",
-      "Basic : Hipster",
-      "Manual : Automatic",
-      "Acceptable to watch with grandma : Unacceptable to watch with grandma",
-      "Loved : Hated",
-      "First world problem : Genuine dilemma",
-      "Liberal : Conservative",
-      "Effective life hack : Irreversible mistake",
-      "Casual : Formal",
-      "Useful to a PM : Useless to a PM",
-      "Bad superpower : Good superpower",
-      "Would be better in space : Would be worse in space",
-      "In your control : Not in your control",
-      "Dictatorship : Democracy",
-      "Worst era to time travel : Best era to time travel",
-      "Scam : Legit",
-      "Short lived : Long lived",
-      "Corporate : Indie",
-      "Movie : Film",
-      "Doesn’t vape : Vapes",
-      "Normal : Weird",
-      "Hard decision : Easy decision",
-      "Worthless : Priceless",
-      "Difficult to use : Easy to use",
-      "Not art : Art",
-      "Worst living person : Greatest living person",
-      "Sad movie : Happy movie",
-      "Mean person : Nice person",
-      "Should have a sequel : Should not have a sequel",
-      "Relevant : Irrelevant",
-      "Casual event : Formal event",
-      "Just a phase : Permanent",
-      "Movie that Godzilla would ruin : Movie that Godzilla would improve",
-      "Microwave'd junk : Microwave’d fine dining",
-      "Illegal : Legal",
-      "Underrated skill : Overrated skill",
-      "Worst person to be socially isolated with : Best person to be socially isolated with",
-      "Unethical : Ethical",
-      "Unpopular activity : Popular activity",
-      "Endangered species : Overpopulated species",
-      "Gossip : News",
-      "Small number : Large number",
-      "Rare : Common",
-      "Agree to disagree : Don’t ever talk to me again",
-      "Sold at a convenience store : Sold at a Costco",
-      "Never forget : Forget",
-      "Square : Round",
-      "Divided : Whole",
-      "Not a sandwich : A sandwich",
-      "Works hard : Plays hard",
-      "Underrated letter of the alphabet : Overrated letter of the alphabet",
-      "Difficult to prepare : Easy to prepare",
-      "Easy to kill : Hard to kill",
-      "Waste of time : Good use of time",
-      "Low quality : High quality",
-      "Dog name : Cat name",
-      "Hard to sit on : Easy to sit on",
-      "Soft : Hard",
-      "Straight : Curvy",
-      "Bad movie : Good movie",
-      "Scary animal : Nice animal",
-      "Stationary : Mobile",
-      "Unpopular : Popular",
-      "Beach read : Tough read",
-      "Rough : Smooth",
-      "Villain : Hero",
-      "Dirty : Clean",
-      "Deserves fame/fortune : Doesn’t deserve fame/fortune",
-      "Juicy : Not juicy",
-      "Drunk food : Sober food",
-      "Flashy : Subtle",
-      "Competent : Incompetent",
-      "Culturally significant : Culturally insignificant",
-      "Dry food : Wet food",
-      "Low stakes : High stakes",
-      "Dark : Light",
-      "Weird : Strange",
-      "Requires luck : Requires skill",
-      "Mental activity : Physical activity",
-      "True : False",
-      "Better than a banana : Worse than a banana",
-      "The life of the party : The death of the party",
-      "The Light Side of the Force : The Dark Side of the Force",
-      "Sport : Game",
-      "Crunchy : Chewy",
-      "One hit wonder : Pop icon",
-      "Fun to argue about : Painful to argue about",
-      "Boring person : Fun person",
-      "Dystopia : Utopia",
-      "Small talk : Heavy topic",
-      "Old-fashioned : Avant-garde",
-      "Cool uniform : Crap uniform",
-      "Round : Pointy",
-      "Wonderful fanbase : Toxic fanbase",
-      "Remake acceptable : Remake should be banned",
-      "Better hot : Better cold",
-      "Good hiding place : Bad hiding place",
-      "Worth queuing for : Not worth queuing for",
-      "Would make a good president : Would make a bad president",
-      "Complaining is acceptable here : Complaining is unacceptable here"
- 
-            ];
-            while (randomClues.length < numClues) {
-                let randomIndex = Math.floor(Math.random() * allClues.length);
-                let clue = allClues[randomIndex];
-                if (!randomClues.includes(clue)) {
-                    randomClues.push(clue);
-                }
-            }
+  <!-- Page 3: Make a Guess -->
+  <div id="page3" class="page">
+    <h2>Make Your Guess</h2>
+    <img src="https://www.historyofpencils.com/images/historyofpencils/protractor-simple.jpg" alt="Protractor" class="protractor">
+    <p id="clue-for-guess"></p>
+    <label for="guessInput">Enter your guess (degrees): </label>
+    <input type="number" id="guessInput" style="width:60px;"><br>
+    <label for="wagerSelect">Opposing team guesses: </label>
+    <select id="wagerSelect">
+      <option value="higher">Higher</option>
+      <option value="lower">Lower</option>
+    </select><br>
+    <button id="toPage4">Submit Guess</button>
+  </div>
 
-            return randomClues;
-        }
+  <!-- Page 4: Results -->
+  <div id="page4" class="page">
+    <h2>Results</h2>
+    <p id="resultMessage"></p>
+    <p id="finalSecretNumber"></p>
+    <button id="resetBtn">Play Again</button>
+  </div>
 
-        function displayClues(clues) {
-            let cluesContainer = document.getElementById('clues');
-            cluesContainer.innerHTML = ''; // Clear previous clues
+  <script>
+    // Global Timer
+    let startTime = Date.now();
+    setInterval(() => {
+      let elapsed = Date.now() - startTime;
+      let seconds = Math.floor(elapsed / 1000) % 60;
+      let minutes = Math.floor(elapsed / 60000);
+      document.getElementById('timerDisplay').textContent = minutes + 'm ' + seconds + 's';
+    }, 1000);
 
-            let instruction = document.createElement('h5');
-            instruction.textContent = 'Step 1. Cluegiver picks a spectrum';
-            cluesContainer.appendChild(instruction);
+    // Game State
+    let clues = [];
+    let selectedClue = '';
+    let secretNumber = Math.floor(Math.random() * (172 - 8 + 1)) + 8;
 
-            for (let i = 0; i < clues.length; i++) {
-                let clueElement = document.createElement('span');
-                let radioBtn = document.createElement('input');
-                radioBtn.type = 'radio';
-                radioBtn.name = 'clue';
-                radioBtn.value = i;
-                radioBtn.onchange = function() {
-                    let previousHighlight = document.getElementsByClassName('highlighted');
-                    if (previousHighlight[0]) {
-                        previousHighlight[0].classList.remove('highlighted');
-                    }
-                    clueElement.classList.add('highlighted');
-                };
+    // Random Clues
+    function getRandomClues(num) {
+      const allClues = [
+      
+    "Pre 9/11 : Post 9/11",
+    "Artisanal : Mass produced",
+    "Unfashionable : Fashionable",
+    "Quiet : Loud",
+    "Smells bad : Smells good",
+    "Benefits you : Benefits everyone",
+    "Off brand : Name brand",
+    "Go for quality : Go for quantity",
+    "Clearly a spectrum : Clearly binary",
+    "Normal thing to own : Weird thing to own",
+    "Won’t live to 100 : Will live to 100",
+    "Underqualified : Overqualified",
+    "Normal pet : Exotic pet",
+    "Famous : Infamous",
+    "Peaceful : Warlike",
+    "Underrated musician : Overrated musician",
+    "Bad actor : Good actor",
+    "Art : Commerce",
+    "Worth the money : Not worth the money",
+    "Worn in the future : Not worn in the future",
+    "Deep thought : Shallow thought",
+    "Out of control : In control",
+    "Nobody does it : Everybody does it",
+    "Weak : Strong",
+    "Unreliable : Reliable",
+    "Illegal : Prohibited",
+    "One-hit wonder : Pop icon",
+    "Limp : Firm",
+    "Sloppy : Neat",
+    "Old fashioned : Avant garde",
+    "Unhealthy : Healthy",
+    "Religious : Sacrilegious",
+    "Most athletic sport : Least athletic sport",
+    "Game : Toy",
+    "Underrated vegetable : Overrated vegetable",
+    "Jingle all the way : Christmas is ruined",
+    "Fire emoji : Oof emoji",
+    "Underrated thing to do : Overrated thing to do",
+    "Easy to do : Hard to do",
+    "Unsexy : Sexy",
+    "Romantic movie : Action movie",
+    "Round animal : Pointy animal",
+    "Acceptable as breakfast : Unacceptable as breakfast",
+    "Expected : Unexpected",
+    "Not enough : Too much",
+    "Underrated weapon : Overrated weapon",
+    "Bad Disney character : Good Disney character",
+    "Useful in a fight : Useless in a fight",
+    "A lil bit illegal : Turbo illegal",
+    "Worst year in history : Best year in history",
+    "Day thing : Night thing",
+    "Useless body part : Useful body part",
+    "Successful franchise : Unsuccessful franchise",
+    "Daytime activity : Nighttime activity",
+    "Trashy TV : Classy TV",
+    "Fruit : Vegetable",
+    "Unforgiveable : Forgiveable",
+    "Believable conspiracy theory : Unbelievable conspiracy theory",
+    "Kids show that kids want to watch : Kids show that adults want to watch",
+    "Unhygienic : Hygienic",
+    "Useless : Useful",
+    "Shady : Trustworthy",
+    "Noisy thing : Silent thing",
+    "Kitchen counter : Kitchen cupboard",
+    "Unsexy animal : Sexy animal",
+    "Limited : Infinite",
+    "Cheap : Expensive",
+    "Bad school : Good school",
+    "Hollow : Solid",
+    "Public : Private",
+    "Horizontal : Vertical",
+    "Good : Evil",
+    "Guilty pleasure : Openly love",
+    "Inclusive : Exclusive",
+    "Role model : Bad influence",
+    "Least evil company : Most evil company",
+    "Inessential : Essential",
+    "Vice : Virtue",
+    "Hard to remember : Easy to remember",
+    "Can change : Cannot change",
+    "Guilty pleasure : Actually just bad",
+    "Indoor activity : Outdoor activity",
+    "Best era to time travel : Worse era to time travel",
+    "Action movie : Adventure movie",
+    "Geek : Dork",
+    "Bad dog breed : Good dog breed",
+    "Appropriate to dance during : Inappropriate to dance during",
+    "Has a bad reputation : Has a good reputation",
+    "Most romantic place to propose : Least romantic place to propose",
+    "Harmless : Harmful",
+    "Uncool : Cool",
+    "Unimportant : Important",
+    "Bad president : Good president",
+    "Best song to play at a funeral : Best song to play at a wedding",
+    "Visually complicated : Visually simple",
+    "Messy food : Clean food",
+    "Unsexy color : Sexy color",
+    "Acceptable place to be naked : Unacceptable place to be naked",
+    "Predictable : Unpredictable",
+    "Etiquette : Manners",
+    "Regional cuisine : Served worldwide",
+    "Traditional : Radical",
+    "Tired : Wired",
+    "Just a warning : Prison time",
+    "Small : Large",
+    "Similar : Identical",
+    "Socialist : Capitalist",
+    "Fad : Classic",
+    "Ugly man : Beautiful man",
+    "Powerless : Powerful",
+    "Plain : Fancy",
+    "Gorgeous design : Grotesque design",
+    "Day food : Night food",
+    "Bad habit : Good habit",
+    "Bad gift : Good gift",
+    "Fragile : Durable",
+    "Underrated actor : Overrated actor",
+    "Bad pizza topping : Good pizza topping",
+    "For kids : For adults",
+    "Uncontroversial topic : Controversial topic",
+    "Bad candy : Good candy",
+    "Hairless : Hairy",
+    "Untalented : Talented",
+    "Mild : Spicy",
+    "Unfairly hated : Understandably hated",
+    "Book was better : Movie was better",
+    "Temporary : Permanent",
+    "Replaceable : Irreplaceable",
+    "Acquired taste : Innate taste",
+    "Unstable : Stable",
+    "Unscented : Scented",
+    "Mature person : Immature person",
+    "Most American thing : Least American thing",
+    "Futuristic : Traditional",
+    "Main character : Cameo",
+    "Introvert : Extrovert",
+    "Better to watch : Better to do",
+    "Worst reaction to break-up : Best reaction to break-up",
+    "Solved with force : Solved with negotiation",
+    "Optional : Mandatory",
+    "Star Wars : Star Trek",
+    "Tiny mistake : Huge mistake",
+    "Cool name for a sports team : Awful name for a sports team",
+    "Fingers necessary : Fingers not necessary",
+    "Opening credits song : End credits song",
+    "Educational : Entertaining",
+    "Useless major : Useful major",
+    "Cat person : Dog person",
+    "Easy subject : Hard subject",
+    "Fantasy : Sci-Fi",
+    "Blue : Green",
+    "Funny topic : Serious topic",
+    "Hard to find : Easy to find",
+    "Short : Long",
+    "Falls apart : Stays together",
+    "Happiest place on earth : Unhappiest place on earth",
+    "Tastes bad : Tastes good",
+    "Rated G : Rated NC-17",
+    "Sad song : Happy song",
+    "Better with cheese : Worse with cheese",
+    "Unbelievable : Believable",
+    "Underrated : Overrated",
+    "Normal greeting : Weird greeting",
+    "Ineffective : Effective",
+    "So bad it's good : So bad it's bad",
+    "Inflexible : Flexible",
+    "Know : Believe",
+    "Proof that God exists : Proof that God doesn’t exist",
+    "Looks like a person : Doesn’t look like a person",
+    "Ordinary : Extraordinary",
+    "Cringe : Fair",
+    "Lawful good : Chaotic evil",
+    "Bad music : Good music",
+    "Heterogeneous : Homogenous",
+    "Unreasonable phobia : Reasonable phobia",
+    "Dry : Wet",
+    "Feels bad : Feels good",
+    "Talent : Skill",
+    "Bad investment : Good investment",
+    "Secret : Public knowledge",
+    "Dirty word : Clean word",
+    "Unnatural : Natural",
+    "Worst athlete of all time : Greatest athlete of all time",
+    "Real : Imaginary",
+    "Underpaid : Overpaid",
+    "Job : Career",
+    "Dream Sesame Street guest : Nightmare Sesame Street guest",
+    "Easy to spell : Hard to spell",
+    "Objective measurement : Subjective measurement",
+    "Local issue : Global issue",
+    "Best meme : Worst meme",
+    "Kid food : Grown-up food",
+    "Stands out : Blends in",
+    "Dog name : Human name",
+    "Best buffet food : Worst buffet food",
+    "Ugly : Beautiful",
+    "Go with your head : Go with your gut",
+    "Underdog : Favorite",
+    "Low calorie : High calorie",
+    "Traditionally masculine : Traditionally feminine",
+    "Freedom fighter : Terrorist",
+    "Underrated thing to own : Overrated thing to own",
+    "Quiet place : Loud place",
+    "Apps at a state dinner : Snacks at a kids party",
+    "Necessary kitchen item : Unnecessary kitchen item",
+    "Never on time : Always on time",
+    "Aged like wine : Aged like milk",
+    "Too small : Too big",
+    "Worst day of the year : Best day of the year",
+    "Normal celeb : Strange celeb",
+    "Bad TV show : Good TV show",
+    "Unknown : Famous",
+    "Ugly word : Beautiful word",
+    "Lots of hot people here : No hot people here",
+    "Least powerful god : Most powerful god",
+    "Controversial food : Uncontroversial food",
+    "Need : Want",
+    "Done silently : Done loudly",
+    "Forbidden : Encouraged",
+    "Small : Tiny",
+    "Little known fact : Well known fact",
+    "Nature : Nurture",
+    "Acceptable to Italians : Unacceptable to Italians",
+    "Underrated movie : Overrated movie",
+    "Dangerous : Safe",
+    "Jesus would do : Jesus would not do",
+    "Bad advice : Good advice",
+    "Dangerous job : Safe job",
+    "Hot take : Unpopular opinion",
+    "Non-partisan : Partisan",
+    "Left-brained : Right-brained",
+    "Huggable : Not huggable",
+    "Lowbrow : Highbrow",
+    "Mildly addictive : Highly addictive",
+    "Stupid : Brilliant",
+    "Liquid : Solid",
+    "Worst chore : Best chore",
+    "Annoying musical instrument : Delightful musical instrument",
+    "Popular : Elitist",
+    "Worth the calories : Not worth the calories",
+    "Underrated book : Overrated book",
+    "Trashy : Classy",
+    "Person you could beat up : Person who’d beat you up",
+    "Derivative : Original",
+    "Job involving shapes : Job involving words",
+    "Ethical to eat : Unethical to eat",
+    "Useless in an emergency : Useful in an emergency",
+    "Sustenance : Haute cuisine",
+    "Hard to pronounce : Easy to pronounce",
+    "OK to lie about : Not OK to lie about",
+    "Colorless : Colorful",
+    "I could make it : I couldn’t make it",
+    "Flavorless : Flavorful",
+    "Historically important : Historically irrelevant",
+    "Useless invention : Useful invention",
+    "Feel great after : Feel awful after",
+    "Snack : Meal",
+    "Bad person : Good person",
+    "Genuine person : Phony person",
+    "Hot : Cold",
+    "Thrilling : Terrifying",
+    "Science : Pseudoscience",
+    "Friend : Enemy",
+    "Bad for you : Good for you",
+    "Poorly made : Well made",  
+    "Good egg : Bad egg",
+    "Millennial thing : Boomer thing",
+    "Worthy of a text : Worthy of a phone call",
+    "Better if jewel encrusted : Worse if jewel encrusted",
+    "Underrated game : Overrated game",
+    "Happens slowly : Happens suddenly",
+    "Smelly in a bad way : Smelly in a good way",
+    "Bad man : Good man",
+    "Conservative brand : Liberal brand",
+    "Comedy : Drama",
+    "Extremely Metal way to die : Not very Metal way to die",
+    "Circle food : Triangle food",
+    "Boring : Exciting",
+    "Conventional wisdom : Fringe belief",
+    "The most dangerous game : The least dangerous game",
+    "Boring topic : Fascinating topic",
+    "The worst : The best",
+    "Basic : Hipster",
+    "Manual : Automatic",
+    "Acceptable to watch with grandma : Unacceptable to watch with grandma",
+    "Loved : Hated",
+    "First world problem : Genuine dilemma",
+    "Liberal : Conservative",
+    "Effective life hack : Irreversible mistake",
+    "Casual : Formal",
+    "Useful to a PM : Useless to a PM",
+    "Bad superpower : Good superpower",
+    "Would be better in space : Would be worse in space",
+    "In your control : Not in your control",
+    "Dictatorship : Democracy",
+    "Worst era to time travel : Best era to time travel",
+    "Scam : Legit",
+    "Short lived : Long lived",
+    "Corporate : Indie",
+    "Movie : Film",
+    "Doesn’t vape : Vapes",
+    "Normal : Weird",
+    "Hard decision : Easy decision",
+    "Worthless : Priceless",
+    "Difficult to use : Easy to use",
+    "Not art : Art",
+    "Worst living person : Greatest living person",
+    "Sad movie : Happy movie",
+    "Mean person : Nice person",
+    "Should have a sequel : Should not have a sequel",
+    "Relevant : Irrelevant",
+    "Casual event : Formal event",
+    "Just a phase : Permanent",
+    "Movie that Godzilla would ruin : Movie that Godzilla would improve",
+    "Microwave'd junk : Microwave’d fine dining",
+    "Illegal : Legal",
+    "Underrated skill : Overrated skill",
+    "Worst person to be socially isolated with : Best person to be socially isolated with",
+    "Unethical : Ethical",
+    "Unpopular activity : Popular activity",
+    "Endangered species : Overpopulated species",
+    "Gossip : News",
+    "Small number : Large number",
+    "Rare : Common",
+    "Agree to disagree : Don’t ever talk to me again",
+    "Sold at a convenience store : Sold at a Costco",
+    "Never forget : Forget",
+    "Square : Round",
+    "Divided : Whole",
+    "Not a sandwich : A sandwich",
+    "Works hard : Plays hard",
+    "Underrated letter of the alphabet : Overrated letter of the alphabet",
+    "Difficult to prepare : Easy to prepare",
+    "Easy to kill : Hard to kill",
+    "Waste of time : Good use of time",
+    "Low quality : High quality",
+    "Dog name : Cat name",
+    "Hard to sit on : Easy to sit on",
+    "Soft : Hard",
+    "Straight : Curvy",
+    "Bad movie : Good movie",
+    "Scary animal : Nice animal",
+    "Stationary : Mobile",
+    "Unpopular : Popular",
+    "Beach read : Tough read",
+    "Rough : Smooth",
+    "Villain : Hero",
+    "Dirty : Clean",
+    "Deserves fame/fortune : Doesn’t deserve fame/fortune",
+    "Juicy : Not juicy",
+    "Drunk food : Sober food",
+    "Flashy : Subtle",
+    "Competent : Incompetent",
+    "Culturally significant : Culturally insignificant",
+    "Dry food : Wet food",
+    "Low stakes : High stakes",
+    "Dark : Light",
+    "Weird : Strange",
+    "Requires luck : Requires skill",
+    "Mental activity : Physical activity",
+    "True : False",
+    "Better than a banana : Worse than a banana",
+    "The life of the party : The death of the party",
+    "The Light Side of the Force : The Dark Side of the Force",
+    "Sport : Game",
+    "Crunchy : Chewy",
+    "One hit wonder : Pop icon",
+    "Fun to argue about : Painful to argue about",
+    "Boring person : Fun person",
+    "Dystopia : Utopia",
+    "Small talk : Heavy topic",
+    "Old-fashioned : Avant-garde",
+    "Cool uniform : Crap uniform",
+    "Round : Pointy",
+    "Wonderful fanbase : Toxic fanbase",
+    "Remake acceptable : Remake should be banned",
+    "Better hot : Better cold",
+    "Good hiding place : Bad hiding place",
+    "Worth queuing for : Not worth queuing for",
+    "Would make a good president : Would make a bad president",
+    "Complaining is acceptable here : Complaining is unacceptable here"
 
-                clueElement.textContent = ' ' + clues[i];  // Added space for separation
-                cluesContainer.appendChild(radioBtn);
-                cluesContainer.appendChild(clueElement);
-                cluesContainer.appendChild(document.createElement('br')); // To ensure next clue is on a new line
-            }
-        }
 
-       function calculateScore() {
-    let guess = document.getElementById('guess').value;
-    let wager = document.getElementById('wager').value;
-    let difference = Math.abs(guess - vibeNumber);
-    let message = '';
 
-    if (difference > 15) {
-        if ((wager === "higher" && guess < vibeNumber) || (wager === "lower" && guess > vibeNumber)) {
-            message = "The opposing team got 1 point";
-        } else {
-            message = "Boo! No one gets any points";
-        }
-    } else if (difference <= 5) {
-        message = "Your team got 4 points!";
-    } else if (difference <= 10) {
-        message = "Your team got 3 points!";
-    } else if (difference <= 15) {
-        message = "Your team got 2 points!";
+
+
+
+
+      ];
+      const result = [];
+      while (result.length < num) {
+        const idx = Math.floor(Math.random() * allClues.length);
+        if (!result.includes(allClues[idx])) result.push(allClues[idx]);
+      }
+      return result;
     }
 
-    document.getElementById('message').textContent = message;
-    document.getElementById('results').style.display = 'block';
-}
+    // Page Navigation
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
 
-        function startTimer() {
-            startTime = Date.now();
+    // Page 1 Setup
+    clues = getRandomClues(3);
+    const optionsDiv = document.getElementById('clue-options');
+    clues.forEach((clue, i) => {
+      const label = document.createElement('label');
+      label.className = 'clue-option';
+      const radio = document.createElement('input');
+      radio.type = 'radio'; radio.name = 'clue'; radio.value = i;
+      label.appendChild(radio);
+      label.append(' ' + clue);
+      optionsDiv.appendChild(label);
+    });
+    document.getElementById('toPage2').onclick = () => {
+      const choice = document.querySelector('input[name="clue"]:checked');
+      if (!choice) { alert('Please select a spectrum.'); return; }
+      selectedClue = clues[parseInt(choice.value)];
+      document.getElementById('chosen-clue').textContent = selectedClue;
+      showPage('page2');
+    };
 
-            timerInterval = setInterval(function() {
-                let elapsedTime = Date.now() - startTime;
-                let seconds = Math.floor(elapsedTime / 1000);
-                let minutes = Math.floor(seconds / 60);
-                let hours = Math.floor(minutes / 60);
+    // Page 2 Reveal Toggle
+    const revealBtn = document.getElementById('revealNumberBtn');
+    revealBtn.onclick = () => {
+      const p = document.getElementById('secretNumber');
+      if (p.style.display === 'block') {
+        p.style.display = 'none';
+        revealBtn.textContent = 'Reveal Secret Number';
+      } else {
+        p.textContent = 'Your secret frequency is ' + secretNumber;
+        p.style.display = 'block';
+        revealBtn.textContent = 'Hide Secret Number';
+      }
+    };
+    document.getElementById('toPage3').onclick = () => {
+      document.getElementById('clue-for-guess').textContent = selectedClue;
+      showPage('page3');
+    };
 
-                seconds %= 60;
-                minutes %= 60;
-                hours %= 24;
+    // Page 3 Guess Submission
+    document.getElementById('toPage4').onclick = () => {
+      const guess = parseInt(document.getElementById('guessInput').value, 10);
+      const wager = document.getElementById('wagerSelect').value;
+      if (isNaN(guess)) { alert('Please enter a valid number.'); return; }
+      let diff = Math.abs(guess - secretNumber);
+      let msg = '';
+      if (diff > 15) {
+        msg = ((wager === 'higher' && guess < secretNumber) || (wager === 'lower' && guess > secretNumber))
+          ? 'The opposing team got 1 point' : 'Boo! No one gets any points';
+      } else if (diff <= 5) msg = 'Your team got 4 points!';
+      else if (diff <= 10) msg = 'Your team got 3 points!';
+      else msg = 'Your team got 2 points!';
+      document.getElementById('resultMessage').textContent = msg;
+      document.getElementById('finalSecretNumber').textContent = 'Secret number: ' + secretNumber;
+      showPage('page4');
+    };
 
-                let timerElement = document.getElementById('timer');
-                timerElement.textContent = 'Time elapsed: ' + hours + 'h ' + minutes + 'm ' + seconds + 's';
-            }, 1000);
-        }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            startTimer();
-        }
-
-        function showRules() {
-            let rulesDiv = document.getElementById('rules');
-            rulesDiv.style.display = 'block';
-        }
-
-        function hideRules() {
-            let rulesDiv = document.getElementById('rules');
-            rulesDiv.style.display = 'none';
-        }
-
-        function toggleVibeNumber() {
-            let vibeNumberElement = document.getElementById('vibeNumber');
-            let vibeButton = document.getElementById('vibeBtn');
-
-            if (vibeNumberElement.style.display === 'block') {
-                vibeNumberElement.style.display = 'none';
-                vibeButton.textContent = 'Reveal';
-            } else {
-                vibeNumberElement.textContent = "Your secret frequency is " + vibeNumber;
-                vibeNumberElement.style.display = 'block';
-                vibeButton.textContent = 'Hide';
-            }
-        }
-
-        function updateVibeButton() {
-            let vibeButton = document.getElementById('vibeBtn');
-            vibeButton.addEventListener('click', toggleVibeNumber);
-        }
-    </script>
-</head>
-<body> 
-     <div>
-        <div id="clues"></div>
-    </div>
-    <img src="protractor.png" alt="Italian Trulli">
-
-Step 2. Cluegiver views secret number.    
-<button id="vibeBtn">Reveal</button>
-    <div id="vibeNumber"></div>
-        
-       <div>
-        <label for="clue">Step 3. Cluegiver makes sure secret number is hidden and starts Zoom screenshare</label>
-        <br>
-        <label for="clue">Step 4. Cluegiver provides clue (five-word phrase):</label>
-        <input type="text" id="clue" name="clue" style="width: 225px;"><br><br>
-        <label for="guess">Step 5. Their team enters guess (in degrees): </label>
-        <input type="number" id="guess" name="guess" style="width: 50px;"><br><br>
-        <label for="wager">Step 6. Opposing team's wager: </label>
-        <select id="wager" name="wager">
-            <option value="higher">Higher</option>
-            <option value="lower">Lower</option>
-        </select><br>
-          <div id="timer"></div>   <br>
-           <button onclick="calculateScore()">View Results</button>
-    </div>
-        
-    <div id="results">
-        <h2>Results</h2>
-        <div id="message"></div>
-    </div>
-    <br><br>
+    // Reset Game
+    document.getElementById('resetBtn').onclick = () => { location.reload(); };
+  </script>
 </body>
 </html>
