@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanban Board v2</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f0f0f0;
+      display: flex; flex-direction: column;
+      align-items: center;
+    }
+    #timer-container {
+      position: fixed;
+      top: 10px; right: 20px;
+      display: none; /* Initially hidden */
+      align-items: center;
+      gap: 10px;
+    }
+    #timer {
+      font-size: 18px; font-weight: bold;
+    }
+    #restart-timer {
+      cursor: pointer;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+    .board {
+      display: flex;
+      justify-content: center;
+      margin-top: 60px;
+      gap: 20px;
+    }
+    .column {
+      background: #fff;
+      border-radius: 8px;
+      width: 300px;
+      min-height: 400px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column;
+    }
+    .column h2 { text-align: center; margin: 0 0 10px; }
+    .card {
+      border-radius: 4px;
+      margin: 8px 0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+      background: #f8f8f8; /* Default card color */
+    }
+    .card-content {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+    }
+    .card input[type="checkbox"] { 
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .task-text {
+      flex-grow: 1;
+      min-height: 20px;
+      outline: none;
+    }
+    .task-text[contenteditable="true"] {
+      border-bottom: 1px dashed #999;
+      background: rgba(255,255,255,0.5);
+      padding: 0 4px;
+    }
+    .add-btn {
+      margin-top: auto;
+      cursor: pointer;
+      text-align: center;
+      padding: 5px;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+    #trash { margin-top: 20px; cursor: pointer; font-size: 24px; }
+    #completedDrawer {
+      display: none;
+      width: 80%; max-width: 600px;
+      background: #fff;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .clear-btn {
+      cursor: pointer;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+    #completedList {
+      margin: 0;
+      padding-left: 20px;
+    }
+    #completedList li {
+      margin-bottom: 8px;
+    }
+    .task-time-info {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 3px;
+    }
+    /* Modal styles */
+    #timerModal {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center; align-items: center;
+    }
+    #timerModal .content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      width: 300px;
+    }
+    #timerModal input[type="number"] { width: 60px; margin: 0 5px; }
+  </style>
+</head>
+<body>
+  <div id="timer-container">
+    <div id="timer">Timer: 00:00</div>
+    <button id="restart-timer" onclick="restartTimer()">Restart</button>
+  </div>
+  <div class="board">
+    <div class="column" id="backlog">
+      <h2>Backlog</h2>
+      <div class="add-btn" onclick="addCard('backlog')">+ Add</div>
+    </div>
+    <div class="column" id="ondeck">
+      <h2>On Deck</h2>
+      <div class="add-btn" onclick="addCard('ondeck')">+ Add</div>
+    </div>
+    <div class="column" id="inflight">
+      <h2>In Flight</h2>
+      <!-- Removed Add button from In Flight column -->
+    </div>
+  </div>
+  <div id="completedDrawer">
+    <div class="drawer-header">
+      <h3>Completed Tasks:</h3>
+      <button class="clear-btn" onclick="clearCompletedTasks()">Clear All</button>
+    </div>
+    <ul id="completedList"></ul>
+  </div>
+  <div id="trash" onclick="toggleDrawer()">♻️</div>
+
+  <!-- Timer Modal - kept for reference but no longer used -->
+  <div id="timerModal">
+    <div class="content">
+      <p>Set Countdown Timer:</p>
+      <div id="countdownInputs">
+        <input type="number" id="minutes" min="0" placeholder="Min" value="25"> :
+        <input type="number" id="seconds" min="0" max="59" placeholder="Sec" value="0">
+      </div>
+      <br>
+      <button onclick="startTimerFromModal()">Start</button>
+    </div>
+  </div>
+
+  <script>
+    let dragged = null;
+    let completed = [];
+    let timerInterval, timerValue = 0;
+    let dragSourceColumn = null;
+    let currentInflightCard = null;
+    let currentEditingElement = null;
+
+    // Initially check if timer should be visible
+    updateTimerVisibility();
+
+    document.querySelectorAll('.column').forEach(col => {
+      col.addEventListener('dragover', e => e.preventDefault());
+      
+      // Track the source column when starting drag
+      col.addEventListener('dragstart', e => {
+        // Only start drag if we're not editing
+        if (currentEditingElement) {
+          e.preventDefault();
+          return;
+        }
+        dragSourceColumn = e.target.closest('.column').id;
+      });
+      
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        const colId = col.id;
+        const cardId = e.dataTransfer.getData('text/plain');
+        const card = document.getElementById(cardId);
+        
+        // Check if trying to add to inflight column and it already has a card
+        // Silently prevent the action without showing an alert
+        if (colId === 'inflight' && hasInflightCard() && dragSourceColumn !== 'inflight') {
+          return;
+        }
+        
+        if (card) {
+          // Insert before the add button (if it exists) or at the end
+          const addBtn = col.querySelector('.add-btn');
+          if (addBtn) {
+            col.insertBefore(card, addBtn);
+          } else {
+            col.appendChild(card);
+          }
+          
+          // If moving to inflight, change color and start timer automatically
+          if (colId === 'inflight' && dragSourceColumn !== 'inflight') {
+            card.style.background = inflightColor();
+            currentInflightCard = card;
+            
+            // Set start time and start 25-minute timer automatically
+            setCardStartTime(card);
+            startTimer(25 * 60); // 25 minutes in seconds
+          }
+          
+          // If moving from inflight to another column, reset color and timer
+          if (dragSourceColumn === 'inflight' && colId !== 'inflight') {
+            card.style.background = '#f8f8f8'; // Reset to default color
+            resetTimer();
+            currentInflightCard = null;
+          }
+          
+          // Update timer visibility after moving cards
+          updateTimerVisibility();
+        }
+      });
+    });
+
+    function setCardStartTime(card) {
+      const now = new Date();
+      card.dataset.startTime = now.toISOString();
+    }
+
+    function makeTaskEditable(taskTextElement) {
+      // Don't allow editing if we're already editing something else
+      if (currentEditingElement && currentEditingElement !== taskTextElement) {
+        finishEditing();
+      }
+      
+      currentEditingElement = taskTextElement;
+      taskTextElement.setAttribute('contenteditable', 'true');
+      taskTextElement.focus();
+      
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(taskTextElement);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      // Prevent dragging while editing
+      taskTextElement.closest('.card').setAttribute('draggable', 'false');
+    }
+    
+    function finishEditing() {
+      if (currentEditingElement) {
+        currentEditingElement.setAttribute('contenteditable', 'false');
+        
+        // Re-enable dragging
+        const card = currentEditingElement.closest('.card');
+        if (card) {
+          card.setAttribute('draggable', 'true');
+        }
+        
+        currentEditingElement = null;
+      }
+    }
+
+    function getRandomPastelColor() {
+      // Generate random pastel colors (excluding green)
+      const hue = Math.floor(Math.random() * 360);
+      
+      // Skip green hues (around 120 degrees)
+      const adjustedHue = (hue > 80 && hue < 160) ? (hue + 80) % 360 : hue;
+      
+      return `hsl(${adjustedHue}, 80%, 85%)`;
+    }
+
+    function formatTimeET(date) {
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }).format(date);
+    }
+
+    function formatDuration(milliseconds) {
+      const seconds = Math.floor(milliseconds / 1000);
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+      
+      return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    }
+
+    function hasInflightCard() {
+      const inflightCol = document.getElementById('inflight');
+      return inflightCol.querySelectorAll('.card').length > 0;
+    }
+
+    function updateTimerVisibility() {
+      const timerContainer = document.getElementById('timer-container');
+      timerContainer.style.display = hasInflightCard() ? 'flex' : 'none';
+    }
+
+    function addCard(columnId) {
+      const col = document.getElementById(columnId);
+      
+      // No longer need to check for inflight since the button is removed
+      
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card' + Date.now();
+      card.draggable = true;
+      
+      // Create card content with checkbox and editable task text
+      const cardContent = document.createElement('div');
+      cardContent.className = 'card-content';
+      
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.onchange = function() { completeCard(this); };
+      
+      const taskText = document.createElement('div');
+      taskText.className = 'task-text';
+      taskText.textContent = 'New Task';
+      
+      // Add event listeners for editing and color change
+      taskText.addEventListener('click', function(e) {
+        // Prevent event from reaching the card (which would start drag)
+        e.stopPropagation();
+        
+        // Change card color on single click
+        const card = this.closest('.card');
+        const columnId = card.closest('.column').id;
+        
+        // Only change color if not in the "In Flight" column
+        if (columnId !== 'inflight') {
+          card.style.background = getRandomPastelColor();
+        }
+      });
+      
+      taskText.addEventListener('dblclick', function(e) {
+        // Prevent event from reaching the card or checkbox
+        e.stopPropagation();
+        makeTaskEditable(this);
+      });
+      
+      taskText.addEventListener('blur', function() {
+        finishEditing();
+      });
+      
+      taskText.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          finishEditing();
+        }
+      });
+      
+      cardContent.appendChild(checkbox);
+      cardContent.appendChild(taskText);
+      card.appendChild(cardContent);
+      
+      // Add drag event listener
+      card.addEventListener('dragstart', e => { 
+        // Don't start drag if we're editing
+        if (currentEditingElement) {
+          e.preventDefault();
+          return;
+        }
+        dragged = card;
+        dragSourceColumn = card.closest('.column').id;
+        e.dataTransfer.setData('text/plain', card.id); 
+      });
+      
+      // Insert before the add button
+      const addBtn = col.querySelector('.add-btn');
+      if (addBtn) {
+        col.insertBefore(card, addBtn);
+      } else {
+        col.appendChild(card);
+      }
+      
+      // Immediately make the new task editable
+      makeTaskEditable(taskText);
+      
+      // Update timer visibility after adding cards
+      updateTimerVisibility();
+    }
+    
+    function inflightColor() {
+      return '#c8e6c9';
+    }
+
+    function completeCard(cb) { 
+      const card = cb.closest('.card'); 
+      const columnId = card.parentElement.id;
+      const taskText = card.querySelector('.task-text').textContent;
+      
+      // Get completion time
+      const completionTime = new Date();
+      
+      // If this is from inflight column and has start time, add timing information
+      if(columnId === 'inflight' && card.dataset.startTime) {
+        const startTime = new Date(card.dataset.startTime);
+        const duration = completionTime - startTime;
+        
+        const startTimeET = formatTimeET(startTime);
+        const completionTimeET = formatTimeET(completionTime);
+        const durationFormatted = formatDuration(duration);
+        
+        const timeInfo = `
+          <div class="task-time-info">
+            Started: ${startTimeET}<br>
+            Completed: ${completionTimeET}<br>
+            Duration: ${durationFormatted}
+          </div>
+        `;
+        
+        document.getElementById('completedList').innerHTML = 
+          `<li>${taskText}${timeInfo}</li>` + 
+          document.getElementById('completedList').innerHTML;
+      } else {
+        // For tasks not from inflight or without start time, just add the task text
+        document.getElementById('completedList').innerHTML = 
+          `<li>${taskText}</li>` + 
+          document.getElementById('completedList').innerHTML;
+      }
+      
+      completed.push(taskText);
+      card.remove(); 
+      
+      // Reset timer if completing a task from the inflight column
+      if(columnId === 'inflight') {
+        resetTimer();
+        currentInflightCard = null;
+      }
+      
+      // Update timer visibility after completing cards
+      updateTimerVisibility();
+    }
+    
+    function toggleDrawer() {
+      const d = document.getElementById('completedDrawer'); 
+      d.style.display = d.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function clearCompletedTasks() {
+      document.getElementById('completedList').innerHTML = '';
+      completed = [];
+    }
+
+    // Start timer with specified seconds
+    function startTimer(seconds) {
+      clearInterval(timerInterval);
+      timerValue = seconds;
+      
+      updateTimerDisplay();
+      
+      timerInterval = setInterval(() => {
+        timerValue -= 1;
+        updateTimerDisplay();
+        
+        // No longer stopping at zero - timer will go negative
+      }, 1000);
+    }
+    
+    // Restart timer to 25 minutes and update start time
+    function restartTimer() {
+      // Update the start time of the current task
+      if (currentInflightCard) {
+        setCardStartTime(currentInflightCard);
+      }
+      
+      // Reset timer to 25 minutes and start it
+      startTimer(25 * 60);
+    }
+    
+    // This function is no longer used directly but kept for reference
+    function startTimerFromModal() {
+      const minutes = parseInt(document.getElementById('minutes').value) || 0;
+      const seconds = parseInt(document.getElementById('seconds').value) || 0;
+      
+      // Set the start time when the timer is started
+      if (currentInflightCard) {
+        setCardStartTime(currentInflightCard);
+      }
+      
+      document.getElementById('timerModal').style.display = 'none';
+      
+      startTimer(minutes * 60 + seconds);
+    }
+    
+    function updateTimerDisplay() {
+      const abs = Math.abs(timerValue);
+      const m = Math.floor(abs / 60).toString().padStart(2, '0');
+      const s = (abs % 60).toString().padStart(2, '0');
+      document.getElementById('timer').innerText = `Timer: ${timerValue < 0 ? '-' : ''}${m}:${s}`;
+      document.getElementById('timer').style.color = timerValue < 0 ? 'red' : 'black';
+    }
+    
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerValue = 0;
+      updateTimerDisplay();
+    }
+    
+    // Handle clicks outside of cards to finish editing
+    document.addEventListener('click', function(e) {
+      if (currentEditingElement && !currentEditingElement.contains(e.target)) {
+        finishEditing();
+      }
+    });
+  </script>
+</body>
+</html>
