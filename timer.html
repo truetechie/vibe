@@ -22,6 +22,7 @@
     }
     #timer {
       font-size: 18px;
+      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
     }
     .timer-btn {
       cursor: pointer;
@@ -65,6 +66,7 @@
       align-items: center;
       cursor: move;
       background: #f8f8f8; /* Default card color */
+      position: relative; /* Added for corner detection */
     }
     .card-content {
       display: flex;
@@ -150,6 +152,7 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
       justify-content: center; align-items: center;
+      z-index: 1000;
     }
     #timerModal .content {
       background: #fff;
@@ -159,6 +162,19 @@
       width: 300px;
     }
     #timerModal input[type="number"] { width: 60px; margin: 0 5px; }
+    
+    /* Corner detection areas - invisible but used for color change */
+    .corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .corner-tl { top: 0; left: 0; }
+    .corner-tr { top: 0; right: 0; }
+    .corner-bl { bottom: 0; left: 0; }
+    .corner-br { bottom: 0; right: 0; }
   </style>
 </head>
 <body>
@@ -166,6 +182,9 @@
     <div id="timer">00:00</div>
     <button id="play-pause-timer" class="timer-btn" onclick="toggleTimer()">
       <span id="play-pause-icon">▶</span>
+    </button>
+    <button id="custom-timer" class="timer-btn" onclick="openTimerModal()">
+      <span>⌛</span>
     </button>
     <button id="restart-timer" class="timer-btn" onclick="restartTimer()">
       <span>↻</span>
@@ -194,7 +213,7 @@
   </div>
   <div id="trash" onclick="toggleDrawer()">♻️</div>
 
-  <!-- Timer Modal - kept for reference but no longer used -->
+  <!-- Timer Modal -->
   <div id="timerModal">
     <div class="content">
       <p>Set Countdown Timer:</p>
@@ -204,6 +223,7 @@
       </div>
       <br>
       <button onclick="startTimerFromModal()">Start</button>
+      <button onclick="closeTimerModal()">Cancel</button>
     </div>
   </div>
 
@@ -218,6 +238,22 @@
 
     // Initially check if timer should be visible
     updateTimerVisibility();
+
+    // Add click event to timer for setting custom time
+    document.getElementById('timer').addEventListener('click', function() {
+      // Only allow changing timer when it's not running or paused
+      if (!timerInterval && !timerPaused) {
+        openTimerModal();
+      }
+    });
+
+    function openTimerModal() {
+      document.getElementById('timerModal').style.display = 'flex';
+    }
+
+    function closeTimerModal() {
+      document.getElementById('timerModal').style.display = 'none';
+    }
 
     document.querySelectorAll('.column').forEach(col => {
       col.addEventListener('dragover', e => e.preventDefault());
@@ -253,6 +289,9 @@
             col.appendChild(card);
           }
           
+          // Update checkbox visibility based on column
+          updateCardCheckbox(card, colId);
+          
           // If moving to inflight, change color and start timer automatically
           if (colId === 'inflight' && dragSourceColumn !== 'inflight') {
             card.style.background = inflightColor();
@@ -277,6 +316,27 @@
         }
       });
     });
+
+    function updateCardCheckbox(card, columnId) {
+      const cardContent = card.querySelector('.card-content');
+      let checkbox = cardContent.querySelector('input[type="checkbox"]');
+      
+      // If moving to inflight column, add checkbox if it doesn't exist
+      if (columnId === 'inflight') {
+        if (!checkbox) {
+          checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.onchange = function() { completeCard(this); };
+          cardContent.insertBefore(checkbox, cardContent.firstChild);
+        }
+      } 
+      // If moving to other columns, remove checkbox if it exists
+      else {
+        if (checkbox) {
+          checkbox.remove();
+        }
+      }
+    }
 
     function setCardStartTime(card) {
       const now = new Date();
@@ -369,33 +429,23 @@
       card.id = 'card' + Date.now();
       card.draggable = true;
       
-      // Create card content with checkbox and editable task text
+      // Create card content with editable task text (no checkbox for non-inflight columns)
       const cardContent = document.createElement('div');
       cardContent.className = 'card-content';
       
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.onchange = function() { completeCard(this); };
+      // Only add checkbox if in inflight column
+      if (columnId === 'inflight') {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.onchange = function() { completeCard(this); };
+        cardContent.appendChild(checkbox);
+      }
       
       const taskText = document.createElement('div');
       taskText.className = 'task-text';
       taskText.textContent = 'New Task';
       
-      // Add event listeners for editing and color change
-      taskText.addEventListener('click', function(e) {
-        // Prevent event from reaching the card (which would start drag)
-        e.stopPropagation();
-        
-        // Change card color on single click
-        const card = this.closest('.card');
-        const columnId = card.closest('.column').id;
-        
-        // Only change color if not in the "In Flight" column
-        if (columnId !== 'inflight') {
-          card.style.background = getRandomPastelColor();
-        }
-      });
-      
+      // Add event listeners for editing
       taskText.addEventListener('dblclick', function(e) {
         // Prevent event from reaching the card or checkbox
         e.stopPropagation();
@@ -413,9 +463,11 @@
         }
       });
       
-      cardContent.appendChild(checkbox);
       cardContent.appendChild(taskText);
       card.appendChild(cardContent);
+      
+      // Add corner elements for color changing
+      addCorners(card);
       
       // Add drag event listener
       card.addEventListener('dragstart', e => { 
@@ -442,6 +494,42 @@
       
       // Update timer visibility after adding cards
       updateTimerVisibility();
+    }
+    
+    function addCorners(card) {
+      // Create corner elements for color changing
+      const corners = ['tl', 'tr', 'bl', 'br'];
+      
+      corners.forEach(pos => {
+        const corner = document.createElement('div');
+        corner.className = `corner corner-${pos}`;
+        corner.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          const card = this.closest('.card');
+          const columnId = card.closest('.column').id;
+          
+          // Only change color if not in the "In Flight" column
+          if (columnId !== 'inflight') {
+            card.style.background = getRandomPastelColor();
+          }
+        });
+        
+        card.appendChild(corner);
+      });
+      
+      // Also add click handler to the card itself (but not the task text)
+      card.addEventListener('click', function(e) {
+        // Only change color if the click is not on the task text or checkbox
+        if (!e.target.closest('.task-text') && !e.target.closest('input[type="checkbox"]')) {
+          const columnId = this.closest('.column').id;
+          
+          // Only change color if not in the "In Flight" column
+          if (columnId !== 'inflight') {
+            this.style.background = getRandomPastelColor();
+          }
+        }
+      });
     }
     
     function inflightColor() {
@@ -577,7 +665,6 @@
       updatePlayPauseButton();
     }
     
-    // This function is no longer used directly but kept for reference
     function startTimerFromModal() {
       const minutes = parseInt(document.getElementById('minutes').value) || 0;
       const seconds = parseInt(document.getElementById('seconds').value) || 0;
